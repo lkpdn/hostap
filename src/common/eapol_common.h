@@ -43,7 +43,11 @@ enum { IEEE802_1X_TYPE_EAP_PACKET = 0,
        IEEE802_1X_TYPE_EAPOL_LOGOFF = 2,
        IEEE802_1X_TYPE_EAPOL_KEY = 3,
        IEEE802_1X_TYPE_EAPOL_ENCAPSULATED_ASF_ALERT = 4,
+       /* IEEE 802.1X-2010 */
        IEEE802_1X_TYPE_EAPOL_MKA = 5,
+       IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_GENERIC = 6,
+       IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_SPECIFIC = 7,
+       IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_REQ = 8,
 };
 
 enum { EAPOL_KEY_TYPE_RC4 = 1, EAPOL_KEY_TYPE_RSN = 2,
@@ -84,6 +88,63 @@ struct ieee802_1x_eapol_key {
 	 * MS-MPPE-Send-Key attribute to be used as the keying material;
 	 * RC4 key used in encryption = Key-IV + MS-MPPE-Recv-Key */
 } STRUCT_PACKED;
+
+/* IEEE Std 802.1X-2010 */
+
+#ifdef CONFIG_MACSEC
+struct ieee801_1x_ann_tlv_hdr {
+	u16 type:7;
+	u16 len:9;
+} STRUCT_PACKED;
+
+struct ieee802_1x_eapol_start {
+	u8 request;
+	u8 tlvs[0];
+} STRUCT_PACKED;
+
+/* 802.1X-2010 11.12.2 */
+struct ieee802_1x_eapol_ann_tlv_access_info {
+	u8 status:2;
+	u8 requested:1;
+	u8 unauthenticated_access:2;
+	u8 virtual_port_access:1;
+	u8 group_access:1;
+	u8 reserved:1;
+	u8 capabilities;
+};
+
+struct ieee802_1x_eapol_ann_macsec_cs {
+	u16 capability;
+	u64 ieee802_1ae_cs_ref_number;
+} STRUCT_PACKED;
+
+/* 802.1X-2010 11.12.3 */
+struct ieee802_1x_eapol_ann_tlv_macsec_cs {
+	struct ieee802_1x_eapol_ann_macsec_cs *cs;
+} STRUCT_PACKED;
+
+/* 802.1X-2010 11.12.4 */
+struct ieee802_1x_eapol_ann_tlv_kmd {
+	char *name;
+};
+
+/* 802.1X-2010 11.12.1 */
+struct ieee802_1x_eapol_ann_tlv_nid {
+	char *name;
+};
+
+/* IEEE 802.1X-2010 Figure 12-3. */
+struct ieee802_1x_announcement {
+	char *nid;
+	char *kmd;
+	u8 access_status;
+	u8 unauthenticated_access;
+	u8 access_capabilities;
+	struct ieee802_1x_eapol_ann_macsec_cs *cs;
+	u8 specific;
+	u8 requested_nid;
+};
+#endif /* CONFIG_MACSEC */
 
 #ifdef _MSC_VER
 #pragma pack(pop)
