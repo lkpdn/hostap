@@ -14,6 +14,7 @@
 #include "vlan.h"
 #include "common/wpa_common.h"
 #include "common/ieee802_11_defs.h"
+#include "pae/ieee802_1x_pae.h"
 
 /* STA flags */
 #define WLAN_STA_AUTH BIT(0)
@@ -260,6 +261,10 @@ struct sta_info {
 	u8 last_tk[WPA_TK_MAX_LEN];
 	size_t last_tk_len;
 #endif /* CONFIG_TESTING_OPTIONS */
+
+#ifdef CONFIG_MACSEC
+	struct ieee802_1x_peer_pae pae;
+#endif
 };
 
 

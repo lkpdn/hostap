@@ -369,6 +369,9 @@ struct hostapd_data {
 	unsigned int dpp_ignore_netaccesskey_mismatch:1;
 #endif /* CONFIG_TESTING_OPTIONS */
 #endif /* CONFIG_DPP */
+#ifdef CONFIG_MACSEC
+	struct ieee802_1x_kay *kay;
+#endif /* CONFIG_MACSEC */
 };
 
 
