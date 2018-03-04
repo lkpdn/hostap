@@ -47,7 +47,6 @@ struct ieee8023_hdr {
 struct wpa_driver_wired_data {
 	struct driver_wired_common_data common;
 
-	int dhcp_sock; /* socket for dhcp packets */
 	int use_pae_group_addr;
 };
 
@@ -230,13 +229,13 @@ static int wired_init_sockets(struct wpa_driver_wired_data *drv, u8 *own_addr)
 	os_memcpy(own_addr, ifr.ifr_hwaddr.sa_data, ETH_ALEN);
 
 	/* setup dhcp listen socket for sta detection */
-	if ((drv->dhcp_sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
+	if ((drv->common.dhcp_sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0) {
 		wpa_printf(MSG_ERROR, "socket call failed for dhcp: %s",
 			   strerror(errno));
 		return -1;
 	}
 
-	if (eloop_register_read_sock(drv->dhcp_sock, handle_dhcp,
+	if (eloop_register_read_sock(drv->common.dhcp_sock, handle_dhcp,
 				     drv->common.ctx, NULL)) {
 		wpa_printf(MSG_INFO, "Could not register read socket");
 		return -1;
@@ -247,13 +246,13 @@ static int wired_init_sockets(struct wpa_driver_wired_data *drv, u8 *own_addr)
 	addr2.sin_port = htons(67);
 	addr2.sin_addr.s_addr = INADDR_ANY;
 
-	if (setsockopt(drv->dhcp_sock, SOL_SOCKET, SO_REUSEADDR, (char *) &n,
+	if (setsockopt(drv->common.dhcp_sock, SOL_SOCKET, SO_REUSEADDR, (char *) &n,
 		       sizeof(n)) == -1) {
 		wpa_printf(MSG_ERROR, "setsockopt[SOL_SOCKET,SO_REUSEADDR]: %s",
 			   strerror(errno));
 		return -1;
 	}
-	if (setsockopt(drv->dhcp_sock, SOL_SOCKET, SO_BROADCAST, (char *) &n,
+	if (setsockopt(drv->common.dhcp_sock, SOL_SOCKET, SO_BROADCAST, (char *) &n,
 		       sizeof(n)) == -1) {
 		wpa_printf(MSG_ERROR, "setsockopt[SOL_SOCKET,SO_BROADCAST]: %s",
 			   strerror(errno));
@@ -262,7 +261,7 @@ static int wired_init_sockets(struct wpa_driver_wired_data *drv, u8 *own_addr)
 
 	os_memset(&ifr, 0, sizeof(ifr));
 	os_strlcpy(ifr.ifr_ifrn.ifrn_name, drv->common.ifname, IFNAMSIZ);
-	if (setsockopt(drv->dhcp_sock, SOL_SOCKET, SO_BINDTODEVICE,
+	if (setsockopt(drv->common.dhcp_sock, SOL_SOCKET, SO_BINDTODEVICE,
 		       (char *) &ifr, sizeof(ifr)) < 0) {
 		wpa_printf(MSG_ERROR,
 			   "setsockopt[SOL_SOCKET,SO_BINDTODEVICE]: %s",
@@ -270,7 +269,7 @@ static int wired_init_sockets(struct wpa_driver_wired_data *drv, u8 *own_addr)
 		return -1;
 	}
 
-	if (bind(drv->dhcp_sock, (struct sockaddr *) &addr2,
+	if (bind(drv->common.dhcp_sock, (struct sockaddr *) &addr2,
 		 sizeof(struct sockaddr)) == -1) {
 		wpa_printf(MSG_ERROR, "bind: %s", strerror(errno));
 		return -1;
@@ -358,9 +357,9 @@ static void wired_driver_hapd_deinit(void *priv)
 		close(drv->common.sock);
 	}
 
-	if (drv->dhcp_sock >= 0) {
-		eloop_unregister_read_sock(drv->dhcp_sock);
-		close(drv->dhcp_sock);
+	if (drv->common.dhcp_sock >= 0) {
+		eloop_unregister_read_sock(drv->common.dhcp_sock);
+		close(drv->common.dhcp_sock);
 	}
 
 	os_free(drv);

@@ -16,6 +16,7 @@ struct driver_wired_common_data {
 
 	int sock; /* raw packet socket for driver access */
 	int pf_sock;
+	int dhcp_sock; /* socket for dhcp packets */
 	int membership, multi, iff_allmulti, iff_up;
 };
 
