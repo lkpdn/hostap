@@ -18,6 +18,8 @@ struct driver_wired_common_data {
 	int pf_sock;
 	int dhcp_sock; /* socket for dhcp packets */
 	int membership, multi, iff_allmulti, iff_up;
+
+	int use_pae_group_addr;
 };
 
 static const u8 pae_group_addr[ETH_ALEN] =
@@ -28,6 +30,15 @@ int driver_wired_get_ssid(void *priv, u8 *ssid);
 int driver_wired_get_bssid(void *priv, u8 *bssid);
 int driver_wired_get_capa(void *priv, struct wpa_driver_capa *capa);
 
+int driver_wired_send_eapol_common(struct driver_wired_common_data *common,
+				   const u8 *addr, const u8 *data,
+				   size_t data_len, int encrypt,
+				   const u8 *own_addr, u32 flags);
+int driver_wired_hapd_init_common(struct driver_wired_common_data *common,
+				  struct wpa_init_params *params,
+				  void *ctx);
+
+void driver_wired_hapd_deinit_common(struct driver_wired_common_data *common);
 int driver_wired_init_common(struct driver_wired_common_data *common,
 			     const char *ifname, void *ctx);
 void driver_wired_deinit_common(struct driver_wired_common_data *common);

@@ -76,6 +76,9 @@ struct macsec_drv_data {
 
 	u8 encoding_sa;
 	Boolean encoding_sa_set;
+
+	/* hostapd only */
+	int use_pae_group_addr;
 };
 
 
@@ -222,6 +225,46 @@ static int try_commit(struct macsec_drv_data *drv)
 	drv->replay_protect_set = FALSE;
 
 	return 0;
+}
+
+
+static void * macsec_drv_hapd_init(struct hostapd_data *hapd,
+				   struct wpa_init_params *params)
+{
+	struct macsec_drv_data *drv;
+
+	drv = os_zalloc(sizeof(*drv));
+	if (!drv) {
+		wpa_printf(MSG_INFO,
+			   "Could not allocate memory for macsec driver data");
+		return NULL;
+	}
+
+	if (driver_wired_hapd_init_common(&drv->common, params, hapd) < 0) {
+		os_free(drv);
+		return NULL;
+	}
+	return drv;
+}
+
+
+static void macsec_drv_hapd_deinit(void *priv)
+{
+	struct macsec_drv_data *drv = priv;
+
+	driver_wired_hapd_deinit_common(&drv->common);
+
+	os_free(drv);
+}
+
+
+static int macsec_drv_send_eapol(void *priv, const u8 *addr,
+				 const u8 *data, size_t data_len, int encrypt,
+				 const u8 *own_addr, u32 flags)
+{
+	struct macsec_drv_data *drv = priv;
+	return driver_wired_send_eapol_common(&drv->common, addr, data, data_len,
+					      encrypt, own_addr, flags);
 }
 
 
