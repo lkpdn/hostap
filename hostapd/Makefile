@@ -1172,6 +1172,19 @@ OBJS += ../src/ap/ndisc_snoop.o
 endif
 endif
 
+ifdef CONFIG_MACSEC
+CFLAGS += -DCONFIG_MACSEC
+CONFIG_IEEE8021X_EAPOL=y
+NEED_AES_ENCBLOCK=y
+NEED_AES_UNWRAP=y
+NEED_AES_WRAP=y
+NEED_AES_OMAC1=y
+OBJS += ../src/pae/ieee802_1x_cp.o
+OBJS += ../src/pae/ieee802_1x_kay.o
+OBJS += ../src/pae/ieee802_1x_key.o
+OBJS += ../src/pae/ieee802_1x_secy_ops.o
+endif
+
 OBJS += ../src/drivers/driver_common.o
 
 ifdef CONFIG_WPA_CLI_EDIT

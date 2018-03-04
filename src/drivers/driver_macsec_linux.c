@@ -1321,6 +1321,9 @@ static int macsec_drv_disable_transmit_sa(void *priv, struct transmit_sa *sa)
 const struct wpa_driver_ops wpa_driver_macsec_linux_ops = {
 	.name = "macsec_linux",
 	.desc = "MACsec Ethernet driver for Linux",
+	.hapd_init = macsec_drv_hapd_init,
+	.hapd_deinit = macsec_drv_hapd_deinit,
+	.hapd_send_eapol = macsec_drv_send_eapol,
 	.get_ssid = driver_wired_get_ssid,
 	.get_bssid = driver_wired_get_bssid,
 	.get_capa = driver_wired_get_capa,
