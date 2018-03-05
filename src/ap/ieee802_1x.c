@@ -34,6 +34,7 @@
 /* FIX: Not really a good thing to require ieee802_11.h here.. (FILS) */
 #include "ieee802_11.h"
 #include "ieee802_1x.h"
+#include "ieee802_1x_kay.h"
 
 
 #ifdef CONFIG_HS20
@@ -1132,6 +1133,7 @@ void ieee802_1x_receive(struct hostapd_data *hapd, const u8 *sa, const u8 *buf,
 				       "STA sent EAPOL-Start");
 			wpa_auth_sta_clear_pmksa(sta->wpa_sm, pmksa);
 		}
+		/* IEEE 802.1X-2010 */
 		if (hdr->version == 0x03) {
 			u8 *buf = (u8 *) (hdr + 1);
 			if (datalen >= 1 && *buf && 0x01) {
@@ -1142,6 +1144,12 @@ void ieee802_1x_receive(struct hostapd_data *hapd, const u8 *sa, const u8 *buf,
 				ieee802_1x_process_ann_tlv(buf, datalen - 1,
 						IEEE802_1X_TYPE_EAPOL_START);
 			}
+#ifdef CONFIG_MACSEC
+			/* init KaY */
+			if (!hapd->kay) {
+				ieee802_1x_alloc_kay_sm(hapd);
+			}
+#endif
 		}
 		sta->eapol_sm->eapolStart = TRUE;
 		sta->eapol_sm->dot1xAuthEapolStartFramesRx++;
