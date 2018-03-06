@@ -14,6 +14,7 @@
 #include "eapol_supp/eapol_supp_sm.h"
 #include "pae/ieee802_1x_key.h"
 #include "pae/ieee802_1x_kay.h"
+#include "pae/ieee802_1x_driver_i.h"
 #include "wpa_supplicant_i.h"
 #include "config.h"
 #include "config_ssid.h"
@@ -28,67 +29,106 @@
 
 static int wpas_macsec_init(void *priv, struct macsec_init_params *params)
 {
-	return wpa_drv_macsec_init(priv, params);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_kay_macsec_init(wpa_s->driver, wpa_s->drv_priv,
+					      params);
 }
 
 
 static int wpas_macsec_deinit(void *priv)
 {
-	return wpa_drv_macsec_deinit(priv);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_kay_macsec_deinit(wpa_s->driver,
+						wpa_s->drv_priv);
 }
 
 
 static int wpas_macsec_get_capability(void *priv, enum macsec_cap *cap)
 {
-	return wpa_drv_macsec_get_capability(priv, cap);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_kay_macsec_get_capability(wpa_s->driver,
+							wpa_s->drv_priv,
+							cap);
 }
 
 
-static int wpas_enable_protect_frames(void *wpa_s, Boolean enabled)
+static int wpas_enable_protect_frames(void *priv, Boolean enabled)
 {
-	return wpa_drv_enable_protect_frames(wpa_s, enabled);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_kay_enable_protect_frames(wpa_s->driver,
+							wpa_s->drv_priv,
+							enabled);
 }
 
 
-static int wpas_enable_encrypt(void *wpa_s, Boolean enabled)
+static int wpas_enable_encrypt(void *priv, Boolean enabled)
 {
-	return wpa_drv_enable_encrypt(wpa_s, enabled);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_kay_enable_encrypt(wpa_s->driver,
+						 wpa_s->drv_priv,
+						 enabled);
 }
 
 
-static int wpas_set_replay_protect(void *wpa_s, Boolean enabled, u32 window)
+static int wpas_set_replay_protect(void *priv, Boolean enabled, u32 window)
 {
-	return wpa_drv_set_replay_protect(wpa_s, enabled, window);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_kay_set_replay_protect(wpa_s->driver,
+						 wpa_s->drv_priv,
+						 enabled, window);
 }
 
 
-static int wpas_set_current_cipher_suite(void *wpa_s, u64 cs)
+static int wpas_set_current_cipher_suite(void *priv, u64 cs)
 {
-	return wpa_drv_set_current_cipher_suite(wpa_s, cs);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_set_current_cipher_suite(wpa_s->driver,
+						   wpa_s->drv_priv,
+						   cs);
 }
 
 
-static int wpas_enable_controlled_port(void *wpa_s, Boolean enabled)
+static int wpas_enable_controlled_port(void *priv, Boolean enabled)
 {
-	return wpa_drv_enable_controlled_port(wpa_s, enabled);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_enable_controlled_port(wpa_s->driver,
+						 wpa_s->drv_priv,
+						 enabled);
 }
 
 
-static int wpas_get_receive_lowest_pn(void *wpa_s, struct receive_sa *sa)
+static int wpas_get_receive_lowest_pn(void *priv, struct receive_sa *sa)
 {
-	return wpa_drv_get_receive_lowest_pn(wpa_s, sa);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_get_receive_lowest_pn(wpa_s->driver,
+						wpa_s->drv_priv, sa);
 }
 
 
-static int wpas_get_transmit_next_pn(void *wpa_s, struct transmit_sa *sa)
+static int wpas_get_transmit_next_pn(void *priv, struct transmit_sa *sa)
 {
-	return wpa_drv_get_transmit_next_pn(wpa_s, sa);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_get_transmit_next_pn(wpa_s->driver,
+					       wpa_s->drv_priv, sa);
 }
 
 
-static int wpas_set_transmit_next_pn(void *wpa_s, struct transmit_sa *sa)
+static int wpas_set_transmit_next_pn(void *priv, struct transmit_sa *sa)
 {
-	return wpa_drv_set_transmit_next_pn(wpa_s, sa);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_set_transmit_next_pn(wpa_s->driver,
+					       wpa_s->drv_priv, sa);
 }
 
 
@@ -106,79 +146,104 @@ static unsigned int conf_offset_val(enum confidentiality_offset co)
 }
 
 
-static int wpas_create_receive_sc(void *wpa_s, struct receive_sc *sc,
+static int wpas_create_receive_sc(void *priv, struct receive_sc *sc,
 				  enum validate_frames vf,
 				  enum confidentiality_offset co)
 {
-	return wpa_drv_create_receive_sc(wpa_s, sc, conf_offset_val(co), vf);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_create_receive_sc(wpa_s->driver, wpa_s->drv_priv,
+					    sc, conf_offset_val(co), vf);
 }
 
 
-static int wpas_delete_receive_sc(void *wpa_s, struct receive_sc *sc)
+static int wpas_delete_receive_sc(void *priv, struct receive_sc *sc)
 {
-	return wpa_drv_delete_receive_sc(wpa_s, sc);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_delete_receive_sc(wpa_s->driver, wpa_s->drv_priv, sc);
 }
 
 
-static int wpas_create_receive_sa(void *wpa_s, struct receive_sa *sa)
+static int wpas_create_receive_sa(void *priv, struct receive_sa *sa)
 {
-	return wpa_drv_create_receive_sa(wpa_s, sa);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_create_receive_sa(wpa_s->driver, wpa_s->drv_priv, sa);
 }
 
 
-static int wpas_delete_receive_sa(void *wpa_s, struct receive_sa *sa)
+static int wpas_delete_receive_sa(void *priv, struct receive_sa *sa)
 {
-	return wpa_drv_delete_receive_sa(wpa_s, sa);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_delete_receive_sa(wpa_s->driver, wpa_s->drv_priv, sa);
 }
 
 
-static int wpas_enable_receive_sa(void *wpa_s, struct receive_sa *sa)
+static int wpas_enable_receive_sa(void *priv, struct receive_sa *sa)
 {
-	return wpa_drv_enable_receive_sa(wpa_s, sa);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_enable_receive_sa(wpa_s->driver, wpa_s->drv_priv, sa);
 }
 
 
-static int wpas_disable_receive_sa(void *wpa_s, struct receive_sa *sa)
+static int wpas_disable_receive_sa(void *priv, struct receive_sa *sa)
 {
-	return wpa_drv_disable_receive_sa(wpa_s, sa);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_disable_receive_sa(wpa_s->driver, wpa_s->drv_priv, sa);
 }
 
 
-static int
-wpas_create_transmit_sc(void *wpa_s, struct transmit_sc *sc,
-			enum confidentiality_offset co)
+static int wpas_create_transmit_sc(void *priv, struct transmit_sc *sc,
+				   enum confidentiality_offset co)
 {
-	return wpa_drv_create_transmit_sc(wpa_s, sc, conf_offset_val(co));
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_create_transmit_sc(wpa_s->driver, wpa_s->drv_priv, sc,
+					     conf_offset_val(co));
 }
 
 
-static int wpas_delete_transmit_sc(void *wpa_s, struct transmit_sc *sc)
+static int wpas_delete_transmit_sc(void *priv, struct transmit_sc *sc)
 {
-	return wpa_drv_delete_transmit_sc(wpa_s, sc);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_delete_transmit_sc(wpa_s->driver, wpa_s->drv_priv, sc);
 }
 
 
-static int wpas_create_transmit_sa(void *wpa_s, struct transmit_sa *sa)
+static int wpas_create_transmit_sa(void *priv, struct transmit_sa *sa)
 {
-	return wpa_drv_create_transmit_sa(wpa_s, sa);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_create_transmit_sa(wpa_s->driver, wpa_s->drv_priv, sa);
 }
 
 
-static int wpas_delete_transmit_sa(void *wpa_s, struct transmit_sa *sa)
+static int wpas_delete_transmit_sa(void *priv, struct transmit_sa *sa)
 {
-	return wpa_drv_delete_transmit_sa(wpa_s, sa);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_delete_transmit_sa(wpa_s->driver, wpa_s->drv_priv, sa);
 }
 
 
-static int wpas_enable_transmit_sa(void *wpa_s, struct transmit_sa *sa)
+static int wpas_enable_transmit_sa(void *priv, struct transmit_sa *sa)
 {
-	return wpa_drv_enable_transmit_sa(wpa_s, sa);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_enable_transmit_sa(wpa_s->driver, wpa_s->drv_priv, sa);
 }
 
 
-static int wpas_disable_transmit_sa(void *wpa_s, struct transmit_sa *sa)
+static int wpas_disable_transmit_sa(void *priv, struct transmit_sa *sa)
 {
-	return wpa_drv_disable_transmit_sa(wpa_s, sa);
+	struct wpa_supplicant *wpa_s = (struct wpa_supplicant *)priv;
+
+	return ieee802_1x_disable_transmit_sa(wpa_s->driver, wpa_s->drv_priv, sa);
 }
 
 
