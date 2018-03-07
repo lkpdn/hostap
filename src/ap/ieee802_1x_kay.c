@@ -16,6 +16,7 @@
 #include "pae/ieee802_1x_kay.h"
 #include "pae/ieee802_1x_driver_i.h"
 #include "hostapd.h"
+#include "sta_info.h"
 
 
 #define DEFAULT_KEY_LEN		16
@@ -293,4 +294,62 @@ int ieee802_1x_alloc_kay_sm(struct hostapd_data *hapd)
 	hapd->kay = res;
 
 	return 0;
+};
+
+
+void * ieee802_1x_create_actor(struct hostapd_data *hapd,
+			       struct sta_info *sta)
+{
+	struct mka_key_name *ckn;
+	struct mka_key *cak;
+	void *res = NULL;
+	struct eapol_state_machine *sm = sta->eapol_sm;
+
+	if (!hapd->kay || hapd->kay->policy == DO_NOT_SECURE)
+		return NULL;
+
+	wpa_printf(MSG_DEBUG,
+		   "IEEE 802.1X: Create MKA for "
+		   MACSTR, MAC2STR(sta->addr));
+
+	ckn = os_zalloc(sizeof(*ckn));
+	cak = os_zalloc(sizeof(*cak));
+	if (!ckn || !cak)
+		goto fail;
+
+	/* Derive CAK from MSK */
+	cak->len = DEFAULT_KEY_LEN;
+	if (ieee802_1x_cak_128bits_aes_cmac(sm->eap_if->eapKeyData,
+					    hapd->own_addr,
+					    sta->addr, cak->key)) {
+		wpa_printf(MSG_ERROR,
+			   "IEEE 802.1X: Deriving CAK failed");
+		goto fail;
+	}
+	wpa_hexdump_key(MSG_DEBUG, "Derived CAK", cak->key, cak->len);
+
+	/* Derive CKN from MSK */
+	ckn->len = DEFAULT_CKN_LEN;
+	if (ieee802_1x_ckn_128bits_aes_cmac(sm->eap_if->eapKeyData,
+					    hapd->own_addr, sta->addr,
+					    sm->eap_if->eapSessionId,
+					    sm->eap_if->eapSessionIdLen,
+					    ckn->name)) {
+		wpa_printf(MSG_ERROR,
+			   "IEEE 802.1X: Deriving CKN failed");
+		goto fail;
+	}
+	wpa_hexdump(MSG_DEBUG, "Derived CKN", ckn->name, ckn->len);
+
+	res = ieee802_1x_kay_create_mka(hapd->kay, ckn, cak, 0,
+					EAP_EXCHANGE, TRUE);
+
+fail:
+	os_free(ckn);
+	if (cak) {
+		os_memset(cak, 0, sizeof(*cak));
+		os_free(cak);
+	}
+
+	return res;
 };
