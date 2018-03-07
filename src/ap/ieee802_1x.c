@@ -221,6 +221,10 @@ static void ieee802_1x_tx_key(struct hostapd_data *hapd, struct sta_info *sta)
 	if (sm == NULL || !sm->eap_if->eapKeyData)
 		return;
 
+#ifdef CONFIG_MACSEC
+	ieee802_1x_create_actor(hapd, sta);
+#endif
+
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: Sending EAPOL-Key(s) to " MACSTR,
 		   MAC2STR(sta->addr));
 
