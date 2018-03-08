@@ -234,7 +234,13 @@ SM_STATE(CP, RECEIVE)
 	sm->lrx = FALSE;
 	ieee802_1x_kay_set_latest_sa_attr(sm->kay, sm->lki, sm->lan,
 					  sm->ltx, sm->lrx);
-	ieee802_1x_kay_create_sas(sm->kay, sm->lki);
+	if (ieee802_1x_kay_create_sas(sm->kay, sm->lki)) {
+		/* In the case of failing to create SAs, there is no point in
+		 * enabling them and proceeding to RECEIVING state. Though not
+		 * explicitly mentioned in IEEE 802.1X-2010 CP state machine,
+		 * it would conflict with IEEE 802.1AE-2006 10.7.13 and 10.7.21.*/
+		return;
+	}
 	ieee802_1x_kay_enable_rx_sas(sm->kay, sm->lki);
 	sm->new_sak = FALSE;
 	sm->all_receiving = FALSE;

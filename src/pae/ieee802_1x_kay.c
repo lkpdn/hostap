@@ -2694,7 +2694,8 @@ int ieee802_1x_kay_create_sas(struct ieee802_1x_kay *kay,
 		if (!rxsa)
 			return -1;
 
-		secy_create_receive_sa(kay, rxsa);
+		if (secy_create_receive_sa(kay, rxsa))
+			return -1;
 	}
 
 	while ((txsa = lookup_txsa_by_an(principal->txsc, latest_sak->an)) !=
@@ -2706,11 +2707,7 @@ int ieee802_1x_kay_create_sas(struct ieee802_1x_kay *kay,
 	if (!txsa)
 		return -1;
 
-	secy_create_transmit_sa(kay, txsa);
-
-
-
-	return 0;
+	return secy_create_transmit_sa(kay, txsa);
 }
 
 
