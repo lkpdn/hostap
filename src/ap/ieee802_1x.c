@@ -1637,6 +1637,28 @@ static void ieee802_1x_update_sta_cui(struct hostapd_data *hapd,
 }
 
 
+static void ieee802_1x_store_eap_session_id(struct hostapd_data *hapd,
+					    struct sta_info *sta,
+					    struct radius_msg *msg)
+{
+#ifdef CONFIG_MACSEC
+	u8 *buf;
+	size_t len;
+	struct eapol_state_machine *sm = sta->eapol_sm;
+
+	if (sm->eap_if->eapSessionId) {
+		return;
+	}
+
+	if (radius_msg_get_attr_ptr(msg, RADIUS_ATTR_EAP_KEY_NAME, &buf, &len,
+				    NULL) == 0) {
+		sm->eap_if->eapSessionId = os_memdup(buf, len);
+		sm->eap_if->eapSessionIdLen = len;
+	}
+#endif
+}
+
+
 #ifdef CONFIG_HS20
 
 static void ieee802_1x_hs20_sub_rem(struct sta_info *sta, u8 *pos, size_t len)
@@ -1974,6 +1996,11 @@ ieee802_1x_receive_auth(struct radius_msg *msg, struct radius_msg *req,
 		ieee802_1x_check_hs20(hapd, sta, msg,
 				      session_timeout_set ?
 				      (int) session_timeout : -1);
+		/* In the case of pass-through mode, it may be possible to
+		   take note of EAP Session-Id, if the backend authentication
+		   server (RADIUS or Diameter) appends it as noted in
+		   RFC 5247 5.9. See also IEEE 802.1X-2010 Annex E.1 */
+		ieee802_1x_store_eap_session_id(hapd, sta, msg);
 		break;
 	case RADIUS_CODE_ACCESS_REJECT:
 		sm->eap_if->aaaFail = TRUE;
