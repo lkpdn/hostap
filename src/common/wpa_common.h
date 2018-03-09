@@ -180,6 +180,9 @@ RSN_SELECTOR(0x00, 0x0f, 0xac, 13)
 #define WPA_KEY_INFO_SMK_MESSAGE BIT(13)
 
 
+/* IEEE 802.1X-2010 */
+#define IEEE8021X_PAE_NID_MAX_OCTETS 100
+
 struct wpa_eapol_key {
 	u8 type;
 	/* Note: key_info, key_length, and key_data_length are unaligned */

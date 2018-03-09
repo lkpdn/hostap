@@ -2229,6 +2229,9 @@ static int hostapd_config_fill(struct hostapd_config *conf,
 		}
 		bss->eapol_version = eapol_version;
 		wpa_printf(MSG_DEBUG, "eapol_version=%d", bss->eapol_version);
+	} else if (os_strcmp(buf, "ieee8021x_nid") == 0) {
+		os_free(bss->ieee802_1x_nid);
+		bss->ieee802_1x_nid = os_strdup(pos);
 #ifdef EAP_SERVER
 	} else if (os_strcmp(buf, "eap_authenticator") == 0) {
 		bss->eap_server = atoi(pos);

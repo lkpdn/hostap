@@ -491,6 +491,7 @@ void hostapd_config_free_bss(struct hostapd_bss_config *conf)
 	hostapd_config_free_eap_users(conf->eap_user);
 	os_free(conf->eap_user_sqlite);
 
+	os_free(conf->ieee802_1x_nid);
 	os_free(conf->eap_req_id_text);
 	os_free(conf->erp_domain);
 	os_free(conf->accept_mac);
@@ -861,6 +862,13 @@ static int hostapd_config_check_bss(struct hostapd_bss_config *bss,
 				return -1;
 			}
 		}
+	}
+
+	if (full_config && bss->ieee802_1x_nid &&
+	    os_strlen(bss->ieee802_1x_nid) > IEEE8021X_PAE_NID_MAX_OCTETS) {
+		wpa_printf(MSG_ERROR, "NID (IEEE 802.1X-2010) has to "
+			   "be configured as 0..100 octet string");
+		return -1;
 	}
 
 #ifdef CONFIG_IEEE80211R_AP
