@@ -2327,11 +2327,11 @@ static void ieee802_1x_delete_transmit_sa(struct ieee802_1x_kay *kay,
  */
 static void ieee802_1x_participant_timer(void *eloop_ctx, void *timeout_ctx)
 {
-	struct ieee802_1x_mka_participant *participant;
+	struct ieee802_1x_mka_participant *participant, *sibling;
 	struct ieee802_1x_kay *kay;
 	struct ieee802_1x_kay_peer *peer, *pre_peer;
 	time_t now = time(NULL);
-	Boolean lp_changed;
+	Boolean lp_changed, no_key_server;
 	struct receive_sc *rxsc, *pre_rxsc;
 	struct transmit_sa *txsa, *pre_txsa;
 
@@ -2372,6 +2372,42 @@ static void ieee802_1x_participant_timer(void *eloop_ctx, void *timeout_ctx)
 			dl_list_del(&peer->list);
 			os_free(peer);
 			lp_changed = TRUE;
+		}
+	}
+
+	if (!participant->is_key_server) {
+		/* Check if the external key server we have recognised is
+		 * no longer present in the Live Peers List, though another
+		 * participant using the same Common Port has it. In that case
+		 * we can delete ourselves, see IEEE 802.1X-2010 9.4 (j).
+		 */
+		no_key_server = TRUE;
+		dl_list_for_each_safe(peer, pre_peer, &participant->live_peers,
+				      struct ieee802_1x_kay_peer, list) {
+			if (peer->is_key_server) {
+				no_key_server = FALSE;
+				break;
+			}
+		}
+		if (no_key_server) {
+			dl_list_for_each(sibling, &kay->participant_list,
+			                 struct ieee802_1x_mka_participant,
+					 list) {
+				if (sibling == participant) {
+					continue;
+				}
+				dl_list_for_each_safe(peer, pre_peer,
+						      &sibling->live_peers,
+						      struct ieee802_1x_kay_peer,
+						      list) {
+					if (os_memcmp(&kay->key_server_sci,
+						      &peer->sci,
+						      sizeof(peer->sci)) == 0) {
+						/* IEEE 802.1X-2010 9.4 (j) */
+						goto delete_mka;
+					}
+				}
+			}
 		}
 	}
 
