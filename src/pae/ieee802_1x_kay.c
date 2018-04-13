@@ -2077,7 +2077,8 @@ static int compare_priorities(const struct ieee802_1x_kay_peer *peer,
 static int
 ieee802_1x_kay_elect_key_server(struct ieee802_1x_mka_participant *participant)
 {
-	struct ieee802_1x_kay_peer *peer;
+	struct ieee802_1x_mka_participant *sibling;
+	struct ieee802_1x_kay_peer *peer, *pre_peer;
 	struct ieee802_1x_kay_peer *key_server = NULL;
 	struct ieee802_1x_kay *kay = participant->kay;
 	Boolean i_is_key_server;
@@ -2122,6 +2123,32 @@ ieee802_1x_kay_elect_key_server(struct ieee802_1x_mka_participant *participant)
 		if (!sci_equal(&kay->key_server_sci, &kay->actor_sci)) {
 			ieee802_1x_cp_signal_chgdserver(kay->cp);
 			ieee802_1x_cp_sm_step(kay->cp);
+		} else {
+			/* This works around otherwise infinitely
+			 * increasing number of duplicate MKA instances,
+			 * which covers the same SCs. The specs mention
+			 * about its necessity when the PAE (or PACP in
+			 * 802.1X-2010 state machine) moves from
+			 * AUTHENTICATED to RESTART but nothing about when
+			 * to cease the old one. We may want to activate
+			 * Reauth timer so need this in that case.
+			 */
+			dl_list_for_each(sibling, &kay->participant_list,
+					 struct ieee802_1x_mka_participant,
+					 list) {
+				if (sibling == participant) {
+					continue;
+				}
+				dl_list_for_each_safe(peer, pre_peer,
+						      &sibling->live_peers,
+						      struct ieee802_1x_kay_peer,
+						      list) {
+					if (sci_equal(&kay->key_server_sci,
+						      &peer->sci)) {
+						dl_list_del(&peer->list);
+					}
+				}
+			}
 		}
 
 		participant->is_key_server = TRUE;
