@@ -24,6 +24,7 @@
 
 
 #define DEFAULT_SA_KEY_LEN	16
+#define SA_KEY_LEN_256		32
 #define DEFAULT_ICV_LEN		16
 #define MAX_ICV_LEN		32  /* 32 bytes, 256 bits */
 
@@ -39,15 +40,47 @@ static u8 mka_algo_agility[4] = MKA_ALGO_AGILITY_2009;
 static struct macsec_ciphersuite cipher_suite_tbl[] = {
 	/* GCM-AES-128 */
 	{
-		.id = CS_ID_GCM_AES_128,
+		.id = CS_ID_GCM_AES_128_OBSOLETE,
 		.name = CS_NAME_GCM_AES_128,
 		.capable = MACSEC_CAP_INTEG_AND_CONF_0_30_50,
 		.sak_len = DEFAULT_SA_KEY_LEN,
 		.index = 0,
 	},
+	/* GCM-AES-128 (IEEE802.1AEbn-2011) */
+	{
+		.id = CS_ID_GCM_AES_128,
+		.name = CS_NAME_GCM_AES_128,
+		.capable = MACSEC_CAP_INTEG_AND_CONF_0_30_50,
+		.sak_len = DEFAULT_SA_KEY_LEN,
+		.index = 1,
+	},
+	/* GCM-AES-256 */
+	{
+		.id = CS_ID_GCM_AES_256,
+		.name = CS_NAME_GCM_AES_256,
+		.capable = MACSEC_CAP_INTEG_AND_CONF_0_30_50,
+		.sak_len = SA_KEY_LEN_256,
+		.index = 2,
+	},
+	/* GCM-AES-XPN-128 */
+	{
+		.id = CS_ID_GCM_AES_XPN_128,
+		.name = CS_NAME_GCM_AES_XPN_128,
+		.capable = MACSEC_CAP_INTEG_AND_CONF,
+		.sak_len = DEFAULT_SA_KEY_LEN,
+		.index = 3,
+	},
+	/* GCM-AES-XPN-256 */
+	{
+		.id = CS_ID_GCM_AES_128,
+		.name = CS_NAME_GCM_AES_128,
+		.capable = MACSEC_CAP_INTEG_AND_CONF,
+		.sak_len = SA_KEY_LEN_256,
+		.index = 4,
+	},
 };
 #define CS_TABLE_SIZE (ARRAY_SIZE(cipher_suite_tbl))
-#define DEFAULT_CS_INDEX  0
+#define DEFAULT_CS_INDEX  1
 
 static struct mka_alg mka_alg_tbl[] = {
 	{
@@ -64,8 +97,21 @@ static struct mka_alg mka_alg_tbl[] = {
 		.kek_trfm = ieee802_1x_kek_128bits_aes_cmac,
 		.ick_trfm = ieee802_1x_ick_128bits_aes_cmac,
 		.icv_hash = ieee802_1x_icv_128bits_aes_cmac,
+	},
+	{
+		.parameter = MKA_ALGO_AGILITY_2009,
 
-		.index = 1,
+		/* 256-bit CAK, KEK, ICK, ICV */
+		.cak_len = MAX_ICV_LEN,
+		.kek_len = MAX_ICV_LEN,
+		.ick_len = MAX_ICV_LEN,
+		.icv_len = MAX_ICV_LEN,
+
+		.cak_trfm = ieee802_1x_cak_256bits_aes_cmac,
+		.ckn_trfm = ieee802_1x_ckn_256bits_aes_cmac,
+		.kek_trfm = ieee802_1x_kek_256bits_aes_cmac,
+		.ick_trfm = ieee802_1x_ick_256bits_aes_cmac,
+		.icv_hash = ieee802_1x_icv_256bits_aes_cmac,
 	},
 };
 #define MKA_ALG_TABLE_SIZE (ARRAY_SIZE(mka_alg_tbl))

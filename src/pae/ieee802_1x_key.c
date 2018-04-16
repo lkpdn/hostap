@@ -187,3 +187,83 @@ int ieee802_1x_sak_128bits_aes_cmac(const u8 *cak, const u8 *ctx,
 {
 	return aes_kdf_128(cak, "IEEE8021 SAK", ctx, ctx_bytes * 8, 128, sak);
 }
+
+
+/********** AES-CMAC-256 **********/
+/**
+ * ieee802_1x_cak_256bits_aes_cmac
+ *
+ * IEEE Std 802.1X-2010, 6.2.2
+ * CAK = KDF(Key, Label, mac1 | mac2, CAKlength)
+ */
+int ieee802_1x_cak_256bits_aes_cmac(const u8 *msk, const u8 *mac1,
+				    const u8 *mac2, u8 *cak)
+{
+	return 0;
+}
+
+
+/**
+ * ieee802_1x_ckn_256bits_aes_cmac
+ *
+ * IEEE Std 802.1X-2010, 6.2.2
+ * CKN = KDF(Key, Label, ID | mac1 | mac2, CKNlength)
+ */
+int ieee802_1x_ckn_256bits_aes_cmac(const u8 *msk, const u8 *mac1,
+				    const u8 *mac2, const u8 *sid,
+				    size_t sid_bytes, u8 *ckn)
+{
+	return 0;
+}
+
+
+/**
+ * ieee802_1x_kek_256bits_aes_cmac
+ *
+ * IEEE Std 802.1X-2010, 9.3.3
+ * KEK = KDF(Key, Label, Keyid, KEKLength)
+ */
+int ieee802_1x_kek_256bits_aes_cmac(const u8 *cak, const u8 *ckn,
+				    size_t ckn_bytes, u8 *kek)
+{
+	return 0;
+}
+
+
+/**
+ * ieee802_1x_ick_256bits_aes_cmac
+ *
+ * IEEE Std 802.1X-2010, 9.3.3
+ * ICK = KDF(Key, Label, Keyid, ICKLength)
+ */
+int ieee802_1x_ick_256bits_aes_cmac(const u8 *cak, const u8 *ckn,
+				    size_t ckn_bytes, u8 *ick)
+{
+	return 0;
+}
+
+
+/**
+ * ieee802_1x_icv_256bits_aes_cmac
+ *
+ * IEEE Std 802.1X-2010, 9.4.1
+ * ICV = AES-CMAC(ICK, M, 256)
+ */
+int ieee802_1x_icv_256bits_aes_cmac(const u8 *ick, const u8 *msg,
+				    size_t msg_bytes, u8 *icv)
+{
+	return 0;
+}
+
+
+/**
+ * ieee802_1x_sak_256bits_aes_cmac
+ *
+ * IEEE Std 802.1X-2010, 9.8.1
+ * SAK = KDF(Key, Label, KS-nonce | MI-value list | KN, SAKLength)
+ */
+int ieee802_1x_sak_256bits_aes_cmac(const u8 *cak, const u8 *ctx,
+				    size_t ctx_bytes, u8 *sak)
+{
+	return 0;
+}
