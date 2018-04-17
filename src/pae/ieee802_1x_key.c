@@ -212,7 +212,11 @@ int ieee802_1x_sak_128bits_aes_cmac(const u8 *cak, const u8 *ctx,
 int ieee802_1x_cak_256bits_aes_cmac(const u8 *msk, const u8 *mac1,
 				    const u8 *mac2, u8 *cak)
 {
-	return 0;
+	u8 context[2 * ETH_ALEN];
+
+	joint_two_mac(mac1, mac2, context);
+	return aes_kdf_256(msk, "IEEE8021 EAP CAK",
+			   context, sizeof(context) * 8, 256, cak);
 }
 
 
@@ -226,7 +230,22 @@ int ieee802_1x_ckn_256bits_aes_cmac(const u8 *msk, const u8 *mac1,
 				    const u8 *mac2, const u8 *sid,
 				    size_t sid_bytes, u8 *ckn)
 {
-	return 0;
+	int res;
+	u8 *context;
+	size_t ctx_len = sid_bytes + ETH_ALEN * 2;
+
+	context = os_zalloc(ctx_len);
+	if (!context) {
+		wpa_printf(MSG_ERROR, "MKA-%s: out of memory", __func__);
+		return -1;
+	}
+	os_memcpy(context, sid, sid_bytes);
+	joint_two_mac(mac1, mac2, context + sid_bytes);
+
+	res = aes_kdf_256(msk, "IEEE8021 EAP CKN", context, ctx_len * 8,
+			  128, ckn);
+	os_free(context);
+	return res;
 }
 
 
@@ -239,7 +258,14 @@ int ieee802_1x_ckn_256bits_aes_cmac(const u8 *msk, const u8 *mac1,
 int ieee802_1x_kek_256bits_aes_cmac(const u8 *cak, const u8 *ckn,
 				    size_t ckn_bytes, u8 *kek)
 {
-	return 0;
+	u8 context[16];
+
+	/* First 16 octets of CKN, with null octets appended to pad if needed */
+	os_memset(context, 0, sizeof(context));
+	os_memcpy(context, ckn, (ckn_bytes < 16) ? ckn_bytes : 16);
+
+	return aes_kdf_256(cak, "IEEE8021 KEK", context, sizeof(context) * 8,
+			   256, kek);
 }
 
 
@@ -252,7 +278,14 @@ int ieee802_1x_kek_256bits_aes_cmac(const u8 *cak, const u8 *ckn,
 int ieee802_1x_ick_256bits_aes_cmac(const u8 *cak, const u8 *ckn,
 				    size_t ckn_bytes, u8 *ick)
 {
-	return 0;
+	u8 context[16];
+
+	/* First 16 octets of CKN, with null octets appended to pad if needed */
+	os_memset(context, 0, sizeof(context));
+	os_memcpy(context, ckn, (ckn_bytes < 16) ? ckn_bytes : 16);
+
+	return aes_kdf_256(cak, "IEEE8021 ICK", context, sizeof(context) * 8,
+			   256, ick);
 }
 
 
@@ -265,6 +298,10 @@ int ieee802_1x_ick_256bits_aes_cmac(const u8 *cak, const u8 *ckn,
 int ieee802_1x_icv_256bits_aes_cmac(const u8 *ick, const u8 *msg,
 				    size_t msg_bytes, u8 *icv)
 {
+	if (omac1_aes_256(ick, msg, msg_bytes, icv)) {
+		wpa_printf(MSG_ERROR, "MKA: omac1_aes_256 failed");
+		return -1;
+	}
 	return 0;
 }
 
@@ -278,5 +315,5 @@ int ieee802_1x_icv_256bits_aes_cmac(const u8 *ick, const u8 *msg,
 int ieee802_1x_sak_256bits_aes_cmac(const u8 *cak, const u8 *ctx,
 				    size_t ctx_bytes, u8 *sak)
 {
-	return 0;
+	return aes_kdf_256(cak, "IEEE8021 SAK", ctx, ctx_bytes * 8, 256, sak);
 }
