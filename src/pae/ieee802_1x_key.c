@@ -31,8 +31,9 @@ static void joint_two_mac(const u8 *mac1, const u8 *mac2, u8 *out)
 
 
 /* IEEE Std 802.1X-2010, 6.2.1 KDF */
-static int aes_kdf_128(const u8 *kdk, const char *label, const u8 *context,
-		       int ctx_bits, int ret_bits, u8 *ret)
+static int aes_kdf(const u8 *kdk, const char *label, const u8 *context,
+		   int ctx_bits, int ret_bits, u8 *ret,
+		   int (*prf)(const u8 *, const u8 *, size_t, u8 *))
 {
 	const int h = 128;
 	const int r = 8;
@@ -61,7 +62,7 @@ static int aes_kdf_128(const u8 *kdk, const char *label, const u8 *context,
 
 	for (i = 0; i < n; i++) {
 		buf[0] = (u8) (i + 1);
-		if (omac1_aes_128(kdk, buf, buf_len, ret)) {
+		if (prf(kdk, buf, buf_len, ret)) {
 			os_free(buf);
 			return -1;
 		}
@@ -69,6 +70,18 @@ static int aes_kdf_128(const u8 *kdk, const char *label, const u8 *context,
 	}
 	os_free(buf);
 	return 0;
+}
+
+static int aes_kdf_128(const u8 *kdk, const char *label, const u8 *context,
+		       int ctx_bits, int ret_bits, u8 *ret)
+{
+	return aes_kdf(kdk, label, context, ctx_bits, ret_bits, ret, omac1_aes_128);
+}
+
+static int aes_kdf_256(const u8 *kdk, const char *label, const u8 *context,
+		       int ctx_bits, int ret_bits, u8 *ret)
+{
+	return aes_kdf(kdk, label, context, ctx_bits, ret_bits, ret, omac1_aes_256);
 }
 
 
