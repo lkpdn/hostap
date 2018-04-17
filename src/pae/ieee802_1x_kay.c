@@ -1652,6 +1652,7 @@ ieee802_1x_mka_decode_dist_sak_body(
 		sak_len = cs->sak_len;
 		wrap_sak = body->sak + CS_ID_LEN;
 		kay->macsec_csindex = cs->index;
+		kay->mka_algindex = cs->algindex;
 	}
 
 	unwrap_sak = os_zalloc(sak_len);
