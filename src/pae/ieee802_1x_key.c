@@ -242,6 +242,7 @@ int ieee802_1x_ckn_256bits_aes_cmac(const u8 *msk, const u8 *mac1,
 	os_memcpy(context, sid, sid_bytes);
 	joint_two_mac(mac1, mac2, context + sid_bytes);
 
+	/* CKN length is still 128bit, while using MSK[0-31] in AES-CMAC-256 */
 	res = aes_kdf_256(msk, "IEEE8021 EAP CKN", context, ctx_len * 8,
 			  128, ckn);
 	os_free(context);
