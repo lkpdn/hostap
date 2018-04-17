@@ -45,6 +45,7 @@ static struct macsec_ciphersuite cipher_suite_tbl[] = {
 		.capable = MACSEC_CAP_INTEG_AND_CONF_0_30_50,
 		.sak_len = DEFAULT_SA_KEY_LEN,
 		.index = 0,
+		.algindex = 0,
 	},
 	/* GCM-AES-128 (IEEE802.1AEbn-2011) */
 	{
@@ -53,6 +54,7 @@ static struct macsec_ciphersuite cipher_suite_tbl[] = {
 		.capable = MACSEC_CAP_INTEG_AND_CONF_0_30_50,
 		.sak_len = DEFAULT_SA_KEY_LEN,
 		.index = 1,
+		.algindex = 0,
 	},
 	/* GCM-AES-256 */
 	{
@@ -61,6 +63,7 @@ static struct macsec_ciphersuite cipher_suite_tbl[] = {
 		.capable = MACSEC_CAP_INTEG_AND_CONF_0_30_50,
 		.sak_len = SA_KEY_LEN_256,
 		.index = 2,
+		.algindex = 1,
 	},
 	/* GCM-AES-XPN-128 */
 	{
@@ -69,6 +72,7 @@ static struct macsec_ciphersuite cipher_suite_tbl[] = {
 		.capable = MACSEC_CAP_INTEG_AND_CONF,
 		.sak_len = DEFAULT_SA_KEY_LEN,
 		.index = 3,
+		.algindex = 0,
 	},
 	/* GCM-AES-XPN-256 */
 	{
@@ -77,6 +81,7 @@ static struct macsec_ciphersuite cipher_suite_tbl[] = {
 		.capable = MACSEC_CAP_INTEG_AND_CONF,
 		.sak_len = SA_KEY_LEN_256,
 		.index = 4,
+		.algindex = 1,
 	},
 };
 #define CS_TABLE_SIZE (ARRAY_SIZE(cipher_suite_tbl))

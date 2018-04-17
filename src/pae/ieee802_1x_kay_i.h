@@ -61,6 +61,7 @@ struct macsec_ciphersuite {
 	int sak_len; /* unit: byte */
 
 	u32 index;
+	u32 algindex;
 };
 
 struct mka_alg {
