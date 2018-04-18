@@ -37,6 +37,7 @@
 #include "ieee802_1x_kay.h"
 
 
+typedef int (*ieee802_1x_announcement_handler)(int *global);
 #ifdef CONFIG_HS20
 static void ieee802_1x_wnm_notif_send(void *eloop_ctx, void *timeout_ctx);
 #endif /* CONFIG_HS20 */
@@ -891,6 +892,40 @@ static void ieee802_1x_save_eapol(struct sta_info *sta, const u8 *buf,
 
 	os_get_reltime(&sta->pending_eapol_rx->rx_time);
 }
+
+
+static int ieee802_1x_tlv_default_handler(int *global) {
+	return 0;
+}
+
+
+static int ieee802_1x_tlv_access_info_handler(int *global) {
+	return 0;
+}
+
+
+static int ieee802_1x_tlv_macsec_cs_handler(int *global) {
+	return 0;
+}
+
+
+static int ieee802_1x_tlv_kmd_handler(int *global) {
+	return 0;
+}
+
+
+static int ieee802_1x_tlv_nid_handler(int *global) {
+	return 0;
+}
+
+
+static ieee802_1x_announcement_handler ieee802_1x_announcement_handlers[] = {
+	[IEEE802_1X_ANN_TLV_ACCESS_INFO] = ieee802_1x_tlv_access_info_handler,
+	[IEEE802_1X_ANN_TLV_MACSEC_CS] = ieee802_1x_tlv_macsec_cs_handler,
+	[IEEE802_1X_ANN_TLV_KMD] = ieee802_1x_tlv_kmd_handler,
+	[IEEE802_1X_ANN_TLV_NID] = ieee802_1x_tlv_nid_handler,
+	[0 ... IEEE802_1X_ANN_TLV_MAX] = ieee802_1x_tlv_default_handler,
+};
 
 
 static int ieee802_1x_ann_tlv_valid(int tlv_type, int packet_type, int global)
