@@ -895,26 +895,35 @@ static void ieee802_1x_save_eapol(struct sta_info *sta, const u8 *buf,
 
 
 static int ieee802_1x_tlv_default_handler(int *global) {
+	wpa_printf(MSG_DEBUG, "IEEE 802.1X: Ignored EAPOL-Announcement");
 	return 0;
 }
 
 
 static int ieee802_1x_tlv_access_info_handler(int *global) {
+	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
+		   "Access Information");
 	return 0;
 }
 
 
 static int ieee802_1x_tlv_macsec_cs_handler(int *global) {
+	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
+		   "MACsec Cipher Suites");
 	return 0;
 }
 
 
 static int ieee802_1x_tlv_kmd_handler(int *global) {
+	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
+		   "Key Management Domain");
 	return 0;
 }
 
 
 static int ieee802_1x_tlv_nid_handler(int *global) {
+	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
+		   "NID (Network Identifier)");
 	return 0;
 }
 
@@ -964,33 +973,6 @@ static int ieee802_1x_ann_tlv_valid(int tlv_type, int packet_type, int global)
 }
 
 
-static void ieee802_1x_parse_ann_tlv(int type, u8 *pos, size_t len, int *global)
-{
-	switch (type & 0x7f) {
-	case IEEE802_1X_ANN_TLV_ACCESS_INFO:
-		wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
-			   "Access Information");
-		break;
-	case IEEE802_1X_ANN_TLV_MACSEC_CS:
-		wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
-			   "MACsec Cipher Suites");
-		break;
-	case IEEE802_1X_ANN_TLV_KMD:
-		wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
-			   "Key Management Domain");
-		break;
-	case IEEE802_1X_ANN_TLV_NID:
-		wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
-			   "NID (Network Identifier)");
-		break;
-	default:
-		wpa_printf(MSG_DEBUG, "IEEE 802.1X: Ignored EAPOL-Announcement "
-			   "TLV type %d", type);
-		break;
-	}
-}
-
-
 static void ieee802_1x_process_ann_tlv(u8 *ann, size_t ann_len, int packet_type)
 {
 	struct ieee802_1x_ann_tlv_hdr *hdr;
@@ -1015,7 +997,7 @@ static void ieee802_1x_process_ann_tlv(u8 *ann, size_t ann_len, int packet_type)
 		}
 
 		if (ieee802_1x_ann_tlv_valid(type, packet_type, global)) {
-			ieee802_1x_parse_ann_tlv(type, pos, len, &global);
+			ieee802_1x_announcement_handlers[type & 0x7f](&global);
 		}
 
 		pos += len;
