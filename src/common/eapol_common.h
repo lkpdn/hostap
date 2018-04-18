@@ -92,7 +92,7 @@ struct ieee802_1x_eapol_key {
 /* IEEE Std 802.1X-2010 */
 
 #ifdef CONFIG_MACSEC
-struct ieee801_1x_ann_tlv_hdr {
+struct ieee802_1x_ann_tlv_hdr {
 	u16 type:7;
 	u16 len:9;
 } STRUCT_PACKED;

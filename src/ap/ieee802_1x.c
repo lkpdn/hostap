@@ -993,7 +993,7 @@ static void ieee802_1x_parse_ann_tlv(int type, u8 *pos, size_t len, int *global)
 
 static void ieee802_1x_process_ann_tlv(u8 *ann, size_t ann_len, int packet_type)
 {
-	struct ieee801_1x_ann_tlv_hdr *hdr;
+	struct ieee802_1x_ann_tlv_hdr *hdr;
 	u8 *pos;
 	size_t left, len;
 	int type, global = 1;
@@ -1002,7 +1002,7 @@ static void ieee802_1x_process_ann_tlv(u8 *ann, size_t ann_len, int packet_type)
 	left = ann_len;
 
 	while (left > sizeof(*hdr)) {
-		hdr = (struct ieee801_1x_ann_tlv_hdr *) pos;
+		hdr = (struct ieee802_1x_ann_tlv_hdr *) pos;
 		type = be_to_host16(hdr->type);
 		len = be_to_host16(hdr->len);
 		pos += sizeof(*hdr);
