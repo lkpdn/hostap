@@ -1180,6 +1180,7 @@ NEED_AES_UNWRAP=y
 NEED_AES_WRAP=y
 NEED_AES_OMAC1=y
 OBJS += ../src/ap/ieee802_1x_kay.o
+OBJS += ../src/pae/ieee802_1x_pae.o
 OBJS += ../src/pae/ieee802_1x_cp.o
 OBJS += ../src/pae/ieee802_1x_kay.o
 OBJS += ../src/pae/ieee802_1x_key.o
