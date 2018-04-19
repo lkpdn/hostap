@@ -37,7 +37,8 @@
 #include "ieee802_1x_kay.h"
 
 
-typedef int (*ieee802_1x_announcement_handler)(int *global);
+typedef int (*ieee802_1x_announcement_handler)(void *priv, int packet_type,
+					       int *global);
 #ifdef CONFIG_HS20
 static void ieee802_1x_wnm_notif_send(void *eloop_ctx, void *timeout_ctx);
 #endif /* CONFIG_HS20 */
@@ -894,34 +895,44 @@ static void ieee802_1x_save_eapol(struct sta_info *sta, const u8 *buf,
 }
 
 
-static int ieee802_1x_tlv_default_handler(int *global) {
+static int
+ieee802_1x_tlv_default_handler(void *priv, int packet_type, int *global)
+{
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: Ignored EAPOL-Announcement");
 	return 0;
 }
 
 
-static int ieee802_1x_tlv_access_info_handler(int *global) {
+static int
+ieee802_1x_tlv_access_info_handler(void *priv, int packet_type, int *global)
+{
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "Access Information");
 	return 0;
 }
 
 
-static int ieee802_1x_tlv_macsec_cs_handler(int *global) {
+static int
+ieee802_1x_tlv_macsec_cs_handler(void *priv, int packet_type, int *global)
+{
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "MACsec Cipher Suites");
 	return 0;
 }
 
 
-static int ieee802_1x_tlv_kmd_handler(int *global) {
+static int
+ieee802_1x_tlv_kmd_handler(void *priv, int packet_type, int *global)
+{
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "Key Management Domain");
 	return 0;
 }
 
 
-static int ieee802_1x_tlv_nid_handler(int *global) {
+static int
+ieee802_1x_tlv_nid_handler(void *priv, int packet_type, int *global)
+{
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "NID (Network Identifier)");
 	return 0;
@@ -997,7 +1008,8 @@ static void ieee802_1x_process_ann_tlv(u8 *ann, size_t ann_len, int packet_type)
 		}
 
 		if (ieee802_1x_ann_tlv_valid(type, packet_type, global)) {
-			ieee802_1x_announcement_handlers[type & 0x7f](&global);
+			ieee802_1x_announcement_handlers[type & 0x7f](
+				NULL, packet_type, &global);
 		}
 
 		pos += len;
