@@ -35,10 +35,9 @@
 #include "ieee802_11.h"
 #include "ieee802_1x.h"
 #include "ieee802_1x_kay.h"
+#include "pae/ieee802_1x_pae.h"
 
 
-typedef int (*ieee802_1x_announcement_handler)(void *priv, int packet_type,
-					       int *global);
 #ifdef CONFIG_HS20
 static void ieee802_1x_wnm_notif_send(void *eloop_ctx, void *timeout_ctx);
 #endif /* CONFIG_HS20 */
@@ -948,76 +947,6 @@ static ieee802_1x_announcement_handler ieee802_1x_announcement_handlers[] = {
 };
 
 
-static int ieee802_1x_ann_tlv_valid(int tlv_type, int packet_type, int global)
-{
-	switch (tlv_type & 0x7f) {
-	case IEEE802_1X_ANN_TLV_ACCESS_INFO:
-		if (packet_type == IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_GENERIC ||
-		    packet_type == IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_SPECIFIC ||
-		    packet_type == IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_REQ ||
-		    packet_type == IEEE802_1X_TYPE_EAPOL_START) {
-		    return 1;
-		}
-		break;
-	case IEEE802_1X_ANN_TLV_MACSEC_CS:
-	case IEEE802_1X_ANN_TLV_KMD:
-		if (packet_type == IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_GENERIC ||
-		    packet_type == IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_SPECIFIC) {
-		    return 1;
-		}
-		break;
-	case IEEE802_1X_ANN_TLV_NID:
-		if (global &&
-		    (packet_type == IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_GENERIC ||
-		     packet_type == IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_SPECIFIC ||
-		     packet_type == IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_REQ ||
-		     packet_type == IEEE802_1X_TYPE_EAPOL_START)) {
-		    return 1;
-		}
-		break;
-	default:
-		wpa_printf(MSG_DEBUG, "IEEE 802.1X: Ignored EAPOL-Announcement "
-			   "TLV type %d", tlv_type);
-		break;
-	}
-	return 0;
-}
-
-
-static void ieee802_1x_process_ann_tlv(u8 *ann, size_t ann_len, int packet_type)
-{
-	struct ieee802_1x_ann_tlv_hdr *hdr;
-	u8 *pos;
-	size_t left, len;
-	int type, global = 1;
-
-	pos = ann;
-	left = ann_len;
-
-	while (left > sizeof(*hdr)) {
-		hdr = (struct ieee802_1x_ann_tlv_hdr *) pos;
-		type = be_to_host16(hdr->type);
-		len = be_to_host16(hdr->len);
-		pos += sizeof(*hdr);
-		left -= sizeof(*hdr);
-		if (len > left) {
-			wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement "
-				   "TLV overrun (type=%d len=%lu left=%lu)",
-				   type, (unsigned long) len,
-				   (unsigned long) left);
-		}
-
-		if (ieee802_1x_ann_tlv_valid(type, packet_type, global)) {
-			ieee802_1x_announcement_handlers[type & 0x7f](
-				NULL, packet_type, &global);
-		}
-
-		pos += len;
-		left -= len;
-	}
-}
-
-
 /**
  * ieee802_1x_receive - Process the EAPOL frames from the Supplicant
  * @hapd: hostapd BSS data
@@ -1174,8 +1103,10 @@ void ieee802_1x_receive(struct hostapd_data *hapd, const u8 *sa, const u8 *buf,
 			}
 			if (datalen >= 2) {
 				buf += 1;
-				ieee802_1x_process_ann_tlv(buf, datalen - 1,
-						IEEE802_1X_TYPE_EAPOL_START);
+				ieee802_1x_decode_announcement(
+					buf, datalen - 1,
+					IEEE802_1X_TYPE_EAPOL_START,
+					ieee802_1x_announcement_handlers);
 			}
 #ifdef CONFIG_MACSEC
 			/* init KaY */
