@@ -907,8 +907,16 @@ static int
 ieee802_1x_tlv_access_info_handler(void *priv, size_t len, u8 *info,
 				   int packet_type, char *nid)
 {
+	u8 access_caps;
+
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "Access Information");
+	if (len != 2) {
+		return 0;
+	}
+	/* In AP-side handling of Access Information TLV, it's enough to
+	 * see in Access Capabilities */
+	access_caps = info[1];
 	return 0;
 }
 
@@ -917,8 +925,30 @@ static int
 ieee802_1x_tlv_macsec_cs_handler(void *priv, size_t len, u8 *info,
 				 int packet_type, char *nid)
 {
+	int i, num;
+	u16 cap_bits;
+	u64 ref_number;
+
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "MACsec Cipher Suites");
+	if (len % 10) {
+		/* any Global MACsec Cipher Suites, or Default Cipher Suite
+		 * if no MACsec Cipher Suites has not been found in global
+		 * context, applies when nid is not NULL.
+		 * See IEEE 802.1X-2010 11.12.3.
+		 */
+		return 0;
+	}
+	for (i = 0, num = len / 10; i < num; i++) {
+		cap_bits = be_to_host16(info);
+		ref_number = be_to_host64(info + 2);
+
+		if (ref_number == CS_ID_GCM_AES_128_OBSOLETE |
+		    ref_number == CS_ID_GCM_AES_128) {
+			enum macsec_cap cap = cap_bits & 0x03;
+		}
+	}
+
 	return 0;
 }
 
@@ -939,6 +969,8 @@ ieee802_1x_tlv_nid_handler(void *priv, size_t len, u8 *info,
 {
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "NID (Network Identifier)");
+	os_memcpy(nid, info, len);
+	nid[len] = '\0';
 	return 0;
 }
 
