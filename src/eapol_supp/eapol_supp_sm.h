@@ -65,6 +65,14 @@ struct eapol_config {
 	 * wps - Whether this connection is used for WPS
 	 */
 	int wps;
+
+	/**
+	 * access_capabilities - EAPOL Access Capabilities bits
+	 *
+	 * This variable deternmines what transmitting system can or cannot
+	 * support beforehand via EAPOL-START or EAPOL-Announcement-Req TLVs.
+	 */
+	u8 access_capabilities;
 };
 
 struct eapol_sm;
