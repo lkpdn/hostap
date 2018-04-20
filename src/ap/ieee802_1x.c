@@ -895,7 +895,8 @@ static void ieee802_1x_save_eapol(struct sta_info *sta, const u8 *buf,
 
 
 static int
-ieee802_1x_tlv_default_handler(void *priv, int packet_type, char *nid)
+ieee802_1x_tlv_default_handler(void *priv, size_t len, u8 *info,
+			       int packet_type, char *nid)
 {
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: Ignored EAPOL-Announcement");
 	return 0;
@@ -903,7 +904,8 @@ ieee802_1x_tlv_default_handler(void *priv, int packet_type, char *nid)
 
 
 static int
-ieee802_1x_tlv_access_info_handler(void *priv, int packet_type, char *nid)
+ieee802_1x_tlv_access_info_handler(void *priv, size_t len, u8 *info,
+				   int packet_type, char *nid)
 {
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "Access Information");
@@ -912,7 +914,8 @@ ieee802_1x_tlv_access_info_handler(void *priv, int packet_type, char *nid)
 
 
 static int
-ieee802_1x_tlv_macsec_cs_handler(void *priv, int packet_type, char *nid)
+ieee802_1x_tlv_macsec_cs_handler(void *priv, size_t len, u8 *info,
+				 int packet_type, char *nid)
 {
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "MACsec Cipher Suites");
@@ -921,7 +924,8 @@ ieee802_1x_tlv_macsec_cs_handler(void *priv, int packet_type, char *nid)
 
 
 static int
-ieee802_1x_tlv_kmd_handler(void *priv, int packet_type, char *nid)
+ieee802_1x_tlv_kmd_handler(void *priv, size_t len, u8 *info,
+			   int packet_type, char *nid)
 {
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "Key Management Domain");
@@ -930,7 +934,8 @@ ieee802_1x_tlv_kmd_handler(void *priv, int packet_type, char *nid)
 
 
 static int
-ieee802_1x_tlv_nid_handler(void *priv, int packet_type, char *nid)
+ieee802_1x_tlv_nid_handler(void *priv, size_t len, u8 *info,
+			   int packet_type, char *nid)
 {
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "NID (Network Identifier)");

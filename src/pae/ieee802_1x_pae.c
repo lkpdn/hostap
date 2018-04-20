@@ -97,7 +97,7 @@ void ieee802_1x_decode_announcement(u8 *ann, size_t ann_len, int packet_type,
 		 */
 		if (ieee802_1x_pae_validate_announcement(type, packet_type,
 							 nid)) {
-			handlers[type & 0x7f](NULL, packet_type, nid);
+			handlers[type & 0x7f](NULL, len, pos, packet_type, nid);
 		}
 
 		pos += len;

@@ -15,8 +15,8 @@
 
 #define ANNOUNCEMENT_TIME 5000
 
-typedef int (*ieee802_1x_announcement_handler)(void *priv, int packet_type,
-					       char *nid);
+typedef int (*ieee802_1x_announcement_handler)(void *priv, size_t len, u8 *pos,
+					       int packet_type, char *nid);
 
 struct ieee802_1x_peer_pae {
        Boolean soliciting_announcement;
