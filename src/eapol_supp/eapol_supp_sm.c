@@ -1400,6 +1400,14 @@ int eapol_sm_rx_eapol(struct eapol_sm *sm, const u8 *src, const u8 *buf,
 			   "EAPOL type %d will be handled by MKA",
 			   hdr->type);
 		break;
+
+	case IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_GENERIC:
+		/* TODO: implement support for this */
+		break;
+
+	case IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_SPECIFIC:
+		/* TODO: implement support for this */
+		break;
 #endif /* CONFIG_MACSEC */
 	default:
 		wpa_printf(MSG_DEBUG, "EAPOL: Received unknown EAPOL type %d",
