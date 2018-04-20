@@ -87,6 +87,14 @@ void ieee802_1x_decode_announcement(u8 *ann, size_t ann_len, int packet_type,
 			   (unsigned long) left);
 		}
 
+		/* IEEE 802.1X-2010 11.12.8 g). - If a particular TLV is
+		 * encountered more than once as Global, or more than once
+		 * within an identified Set, only one of its values shall be
+		 * recorded (for Global, or for the identified Set as
+		 * appropriate). It is undefined whether the recorded value is
+		 * to be the first, last, or any other encountered by the
+		 * decoder.
+		 */
 		if (ieee802_1x_pae_validate_announcement(type, packet_type,
 							 nid)) {
 			handlers[type & 0x7f](NULL, packet_type, nid);
