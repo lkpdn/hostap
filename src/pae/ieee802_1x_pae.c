@@ -23,7 +23,7 @@
  * ieee802_1x_pae_validate_announcement -
  */
 static int
-ieee802_1x_pae_validate_announcement(int tlv_type, int packet_type, int global)
+ieee802_1x_pae_validate_announcement(int tlv_type, int packet_type, char *nid)
 {
        switch (tlv_type & 0x7f) {
        case IEEE802_1X_ANN_TLV_ACCESS_INFO:
@@ -42,7 +42,7 @@ ieee802_1x_pae_validate_announcement(int tlv_type, int packet_type, int global)
 	       }
 	       break;
        case IEEE802_1X_ANN_TLV_NID:
-	       if (global &&
+	       if (!nid &&
 		   (packet_type == IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_GENERIC ||
 		    packet_type == IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_SPECIFIC ||
 		    packet_type == IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_REQ ||
@@ -68,7 +68,8 @@ void ieee802_1x_decode_announcement(u8 *ann, size_t ann_len, int packet_type,
 	struct ieee802_1x_ann_tlv_hdr *hdr;
 	u8 *pos;
 	size_t left, len;
-	int type, global = 1;
+	int type;
+	char nid[101] = { 0 };
 
 	pos = ann;
 	left = ann_len;
@@ -87,8 +88,8 @@ void ieee802_1x_decode_announcement(u8 *ann, size_t ann_len, int packet_type,
 		}
 
 		if (ieee802_1x_pae_validate_announcement(type, packet_type,
-							 global)) {
-			handlers[type & 0x7f](NULL, packet_type, &global);
+							 nid)) {
+			handlers[type & 0x7f](NULL, packet_type, nid);
 		}
 
 		pos += len;

@@ -895,7 +895,7 @@ static void ieee802_1x_save_eapol(struct sta_info *sta, const u8 *buf,
 
 
 static int
-ieee802_1x_tlv_default_handler(void *priv, int packet_type, int *global)
+ieee802_1x_tlv_default_handler(void *priv, int packet_type, char *nid)
 {
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: Ignored EAPOL-Announcement");
 	return 0;
@@ -903,7 +903,7 @@ ieee802_1x_tlv_default_handler(void *priv, int packet_type, int *global)
 
 
 static int
-ieee802_1x_tlv_access_info_handler(void *priv, int packet_type, int *global)
+ieee802_1x_tlv_access_info_handler(void *priv, int packet_type, char *nid)
 {
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "Access Information");
@@ -912,7 +912,7 @@ ieee802_1x_tlv_access_info_handler(void *priv, int packet_type, int *global)
 
 
 static int
-ieee802_1x_tlv_macsec_cs_handler(void *priv, int packet_type, int *global)
+ieee802_1x_tlv_macsec_cs_handler(void *priv, int packet_type, char *nid)
 {
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "MACsec Cipher Suites");
@@ -921,7 +921,7 @@ ieee802_1x_tlv_macsec_cs_handler(void *priv, int packet_type, int *global)
 
 
 static int
-ieee802_1x_tlv_kmd_handler(void *priv, int packet_type, int *global)
+ieee802_1x_tlv_kmd_handler(void *priv, int packet_type, char *nid)
 {
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "Key Management Domain");
@@ -930,7 +930,7 @@ ieee802_1x_tlv_kmd_handler(void *priv, int packet_type, int *global)
 
 
 static int
-ieee802_1x_tlv_nid_handler(void *priv, int packet_type, int *global)
+ieee802_1x_tlv_nid_handler(void *priv, int packet_type, char *nid)
 {
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "NID (Network Identifier)");
@@ -1163,7 +1163,17 @@ void ieee802_1x_receive(struct hostapd_data *hapd, const u8 *sa, const u8 *buf,
 
 	case IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_REQ:
 		wpa_printf(MSG_DEBUG, "   EAPOL-Announcement-Req");
-		/* TODO: implement support for this; show data */
+		u8 *buf = (u8 *) (hdr + 1);
+		if (!datalen && *buf && 0x01) {
+			sta->pae.soliciting_announcement = 1;
+		} else if (datalen >= 2) {
+			/* supp conveys network selection desired. */
+			buf += 1;
+			ieee802_1x_decode_announcement(
+				buf, datalen - 1,
+				IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_REQ,
+				ieee802_1x_announcement_handlers);
+		}
 		break;
 
 	default:
