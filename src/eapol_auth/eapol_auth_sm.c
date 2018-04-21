@@ -1195,6 +1195,7 @@ static int eapol_auth_conf_clone(struct eapol_auth_config *dst,
 	os_free(dst->eap_req_id_text);
 	dst->pwd_group = src->pwd_group;
 	dst->pbc_in_m1 = src->pbc_in_m1;
+	dst->access_caps = src->access_caps;
 	dst->server_id = src->server_id;
 	dst->server_id_len = src->server_id_len;
 	if (src->eap_req_id_text) {
