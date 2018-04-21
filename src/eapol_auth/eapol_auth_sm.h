@@ -44,6 +44,7 @@ struct eapol_auth_config {
 	int pbc_in_m1;
 	const u8 *server_id;
 	size_t server_id_len;
+	u8 access_caps;
 
 	/* Opaque context pointer to owner data for callback functions */
 	void *ctx;

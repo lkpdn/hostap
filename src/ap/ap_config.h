@@ -254,6 +254,7 @@ struct hostapd_bss_config {
 	int ieee802_1x; /* use IEEE 802.1X */
 	int eapol_version;
 	char *ieee802_1x_nid;
+	u8 ieee802_1x_access_caps;
 	int eap_server; /* Use internal EAP server instead of external
 			 * RADIUS server */
 	struct hostapd_eap_user *eap_user;
