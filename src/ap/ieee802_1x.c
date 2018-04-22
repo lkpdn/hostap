@@ -1135,7 +1135,8 @@ void ieee802_1x_receive(struct hostapd_data *hapd, const u8 *sa, const u8 *buf,
 		/* IEEE 802.1X-2010 */
 		if (hdr->version == 0x03) {
 			u8 *buf = (u8 *) (hdr + 1);
-			if (datalen >= 1 && *buf && 0x01) {
+			if (datalen >= 1 && *buf && 0x01 &&
+			    os_memcmp(sa, pae_group_addr, ETH_ALEN) != 0) {
 				sta->pae.soliciting_announcement = 1;
 			}
 			if (datalen >= 2) {
@@ -1204,9 +1205,11 @@ void ieee802_1x_receive(struct hostapd_data *hapd, const u8 *sa, const u8 *buf,
 		}
 		wpa_printf(MSG_DEBUG, "   EAPOL-Announcement-Req");
 		u8 *buf = (u8 *) (hdr + 1);
-		if (!datalen && *buf && 0x01) {
+		if ((!datalen || *buf && 0x01) &&
+		    os_memcmp(sa, pae_group_addr, ETH_ALEN) != 0) {
 			sta->pae.soliciting_announcement = 1;
-		} else if (datalen >= 2) {
+		}
+		if (datalen >= 2) {
 			/* supp conveys network selection desired. */
 			buf += 1;
 			ieee802_1x_decode_announcement(
