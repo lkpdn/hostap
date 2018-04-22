@@ -1858,6 +1858,15 @@ static int ieee802_1x_mka_decode_announce_body(
 	struct ieee802_1x_mka_participant *participant,
 	const u8 *mka_msg, size_t msg_len)
 {
+	/* If we are a supplicant, making use of the announcement in the MKPDU
+	 * should be preferred to Controlled Port protected EAPOL Announcement,
+	 * though we are not allowed to set up multiple connectivity settings
+	 * in wpa_supplicant.conf and do not solicit announcement at first, so
+	 * it's useless for now. If we are an authenticator, this might help us
+	 * adjust our next generic EAPOL-Announcement to express more favorable
+	 * NID first, though the detail has not been defined yet.
+	 * Relevant clauses: IEEE 802.1X-2010 10.2 NOTE 1, NOTE 2.
+	 */
 	return 0;
 }
 
