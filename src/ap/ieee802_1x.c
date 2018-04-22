@@ -894,6 +894,28 @@ static void ieee802_1x_save_eapol(struct sta_info *sta, const u8 *buf,
 }
 
 
+static void
+ieee802_1x_generic_announcement_timeout(void *eloop_ctx, void *timeout_ctx)
+{
+	struct sta_info *sta = eloop_ctx;
+	u8 announcement = 0;
+
+	/* XXX: currently wired drivers set PAE packet destination address
+	 *      based on config parameter use_pae_group_address, however
+	 *      we need to send both to group address and individual STA
+	 *      address depending on announcement types defined in .1X-2010
+	 */
+	sta->eapol_sm->eapol->cb.eapol_send(
+		sta->eapol_sm->eapol->conf.ctx, sta,
+		IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_GENERIC,
+		(u8 *) &announcement, sizeof(announcement));
+
+	eloop_register_timeout(IEEE8021X_ANN_TIME / 1000, 0,
+			       ieee802_1x_generic_announcement_timeout,
+			       sta, NULL);
+}
+
+
 static int
 ieee802_1x_tlv_default_handler(void *priv, size_t len, u8 *info,
 			       int packet_type, char *nid)
