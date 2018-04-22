@@ -1141,7 +1141,7 @@ void ieee802_1x_receive(struct hostapd_data *hapd, const u8 *sa, const u8 *buf,
 			if (datalen >= 2) {
 				buf += 1;
 				ieee802_1x_decode_announcement(
-					buf, datalen - 1,
+					sta->eapol_sm->eapol, buf, datalen - 1,
 					IEEE802_1X_TYPE_EAPOL_START,
 					ieee802_1x_announcement_handlers);
 			}
@@ -1210,7 +1210,7 @@ void ieee802_1x_receive(struct hostapd_data *hapd, const u8 *sa, const u8 *buf,
 			/* supp conveys network selection desired. */
 			buf += 1;
 			ieee802_1x_decode_announcement(
-				buf, datalen - 1,
+				sta->eapol_sm->eapol, buf, datalen - 1,
 				IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_REQ,
 				ieee802_1x_announcement_handlers);
 		}

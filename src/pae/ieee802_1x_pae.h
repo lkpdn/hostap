@@ -22,9 +22,10 @@ struct ieee802_1x_peer_pae {
        Boolean soliciting_announcement;
 };
 
-void ieee802_1x_decode_announcement(u8 *ann, size_t ann_len, int packet_type,
-				    const ieee802_1x_announcement_handler *handlers);
-int ieee802_1x_pae_encode_announcement_generic(u8 *own_addr, struct wpabuf *pbuf);
+void ieee802_1x_decode_announcement(void *priv, u8 *ann, size_t ann_len,
+				    int packet_type,
+				    const ieee802_1x_announcement_handler *hdr);
+int ieee802_1x_pae_encode_announcement_generic(u8 *addr, struct wpabuf *pbuf);
 void ieee802_1x_xmit_announcement(void *priv);
 
 #endif /* IEEE802_1X_PAE_H */
