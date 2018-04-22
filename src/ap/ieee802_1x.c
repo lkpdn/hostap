@@ -1199,6 +1199,9 @@ void ieee802_1x_receive(struct hostapd_data *hapd, const u8 *sa, const u8 *buf,
 		break;
 
 	case IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_REQ:
+		if (hdr->version < 0x03) {
+			break;
+		}
 		wpa_printf(MSG_DEBUG, "   EAPOL-Announcement-Req");
 		u8 *buf = (u8 *) (hdr + 1);
 		if (!datalen && *buf && 0x01) {
