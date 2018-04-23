@@ -97,8 +97,15 @@ struct ieee802_1x_eapol_key {
 
 #ifdef CONFIG_MACSEC
 struct ieee802_1x_ann_tlv_hdr {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
+	u16 len:9;
+	u16 type:7;
+#elif __BYTE_ORDER == __BIG_ENDIAN
 	u16 type:7;
 	u16 len:9;
+#else
+#error "Please fix <bits/endian.h>"
+#endif
 } STRUCT_PACKED;
 
 struct ieee802_1x_eapol_start {
@@ -108,12 +115,23 @@ struct ieee802_1x_eapol_start {
 
 /* 802.1X-2010 11.12.2 */
 struct ieee802_1x_eapol_ann_tlv_access_info {
+#if __BYTE_ORDER == __LITTLE_ENDIAN
 	u8 status:2;
 	u8 requested:1;
 	u8 unauthenticated_access:2;
 	u8 virtual_port_access:1;
 	u8 group_access:1;
 	u8 reserved:1;
+#elif __BYTE_ORDER == __BIG_ENDIAN
+	u8 reserved:1;
+	u8 group_access:1;
+	u8 virtual_port_access:1;
+	u8 unauthenticated_access:2;
+	u8 requested:1;
+	u8 status:2;
+#else
+#error "Please fix <bits/endian.h>"
+#endif
 	u8 capabilities;
 };
 
