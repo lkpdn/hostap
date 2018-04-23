@@ -12,14 +12,28 @@
 #include "includes.h"
 #include "common.h"
 #include "list.h"
+#include "common/eapol_common.h"
 
 #define ANNOUNCEMENT_TIME 5000
 
 typedef int (*ieee802_1x_announcement_handler)(void *priv, size_t len, u8 *pos,
 					       int packet_type, char *nid);
 
+struct eapol_pending_announcement {
+	struct os_reltime last_tx[5];
+	u8 last_tx_index;
+
+	u8 access_status;
+	u8 access_requested;
+	Boolean is_vport_access;
+	Boolean is_group_access;
+
+	struct ieee802_1x_announcement last_rx;
+};
+
 struct ieee802_1x_peer_pae {
        Boolean soliciting_announcement;
+       struct eapol_pending_announcement *pending_announcement;
 };
 
 void ieee802_1x_decode_announcement(void *priv, u8 *ann, size_t ann_len,
