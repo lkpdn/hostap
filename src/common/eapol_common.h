@@ -133,7 +133,7 @@ struct ieee802_1x_eapol_ann_tlv_access_info {
 #error "Please fix <bits/endian.h>"
 #endif
 	u8 capabilities;
-};
+} STRUCT_PACKED;
 
 struct ieee802_1x_eapol_ann_macsec_cs {
 	u16 capability;
