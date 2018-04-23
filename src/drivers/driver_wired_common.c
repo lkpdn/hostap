@@ -96,6 +96,17 @@ static void handle_data(void *ctx, unsigned char *buf, size_t len)
 
 			pos = (u8 *) (hdr + 1);
 			left = len - sizeof(*hdr);
+
+			/* If the destination MAC address is neither the group
+			 * address recognised by the receiving MSAP nor the
+			 * individual of the MSAP, we need to discard the EAPOL
+			 * PDU, as stated in IEEE 802.1X-2010 11.4 (a).
+			 *
+			 * So, should we propagate destination addr so that we
+			 * will check its validity against the exact BSS MAC
+			 * address, which may be stacked or a Virtual Port, which
+			 * has a different MAC address from the Common Port's?
+			 */
 			drv_event_eapol_rx(ctx, sa, pos, left);
 		break;
 
