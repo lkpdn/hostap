@@ -2452,6 +2452,7 @@ int ieee802_1x_init(struct hostapd_data *hapd)
 	conf.fragment_size = hapd->conf->fragment_size;
 	conf.pwd_group = hapd->conf->pwd_group;
 	conf.pbc_in_m1 = hapd->conf->pbc_in_m1;
+	conf.nid = hapd->conf->ieee802_1x_nid;
 	conf.access_caps = hapd->conf->ieee802_1x_access_caps;
 	if (hapd->conf->server_id) {
 		conf.server_id = (const u8 *) hapd->conf->server_id;

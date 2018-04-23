@@ -1229,6 +1229,12 @@ static int eapol_auth_conf_clone(struct eapol_auth_config *dst,
 			goto fail;
 	} else
 		dst->eap_fast_a_id_info = NULL;
+	if (src->nid) {
+		dst->nid = os_strdup(src->nid);
+		if (dst->nid == NULL)
+			goto fail;
+	} else
+		dst->nid = NULL;
 	dst->eap_fast_prov = src->eap_fast_prov;
 	dst->pac_key_lifetime = src->pac_key_lifetime;
 	dst->pac_key_refresh_time = src->pac_key_refresh_time;
