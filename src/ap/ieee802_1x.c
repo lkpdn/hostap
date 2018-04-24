@@ -916,9 +916,12 @@ ieee802_1x_generic_announcement_timeout(void *eloop_ctx, void *timeout_ctx)
 }
 
 
+/*
+ * ieee802_1x_announcement_handler implementations
+ */
 static int
-ieee802_1x_tlv_default_handler(void *priv, size_t len, u8 *info,
-			       int packet_type, char *nid)
+ap_eapol_tlv_default_rx(void *priv, size_t len, u8 *info, int packet_type,
+			char *nid)
 {
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: Ignored EAPOL-Announcement");
 	return 0;
@@ -926,8 +929,8 @@ ieee802_1x_tlv_default_handler(void *priv, size_t len, u8 *info,
 
 
 static int
-ieee802_1x_tlv_access_info_handler(void *priv, size_t len, u8 *info,
-				   int packet_type, char *nid)
+ap_eapol_tlv_access_info_rx(void *priv, size_t len, u8 *info, int packet_type,
+			    char *nid)
 {
 	u8 access_caps;
 
@@ -944,8 +947,8 @@ ieee802_1x_tlv_access_info_handler(void *priv, size_t len, u8 *info,
 
 
 static int
-ieee802_1x_tlv_macsec_cs_handler(void *priv, size_t len, u8 *info,
-				 int packet_type, char *nid)
+ap_eapol_tlv_macsec_cs_rx(void *priv, size_t len, u8 *info, int packet_type,
+			  char *nid)
 {
 	int i, num;
 	u16 cap_bits;
@@ -976,8 +979,8 @@ ieee802_1x_tlv_macsec_cs_handler(void *priv, size_t len, u8 *info,
 
 
 static int
-ieee802_1x_tlv_kmd_handler(void *priv, size_t len, u8 *info,
-			   int packet_type, char *nid)
+ap_eapol_tlv_kmd_rx(void *priv, size_t len, u8 *info, int packet_type,
+		    char *nid)
 {
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "Key Management Domain");
@@ -986,8 +989,8 @@ ieee802_1x_tlv_kmd_handler(void *priv, size_t len, u8 *info,
 
 
 static int
-ieee802_1x_tlv_nid_handler(void *priv, size_t len, u8 *info,
-			   int packet_type, char *nid)
+ap_eapol_tlv_nid_rx(void *priv, size_t len, u8 *info, int packet_type,
+		    char *nid)
 {
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "NID (Network Identifier)");
@@ -997,21 +1000,27 @@ ieee802_1x_tlv_nid_handler(void *priv, size_t len, u8 *info,
 }
 
 
-static struct ieee802_1x_announcement_handler ieee802_1x_announcement_handlers[] = {
+static struct
+ieee802_1x_announcement_handler ieee802_1x_announcement_handlers[] = {
 	[IEEE802_1X_ANN_TLV_ACCESS_INFO] = {
-		.body_rx = ieee802_1x_tlv_access_info_handler,
+		.body_tx = NULL,
+		.body_rx = ap_eapol_tlv_access_info_rx,
 	},
 	[IEEE802_1X_ANN_TLV_MACSEC_CS] = {
-		.body_rx = ieee802_1x_tlv_macsec_cs_handler,
+		.body_tx = NULL,
+		.body_rx = ap_eapol_tlv_macsec_cs_rx,
 	},
 	[IEEE802_1X_ANN_TLV_KMD] = {
-		.body_rx = ieee802_1x_tlv_kmd_handler,
+		.body_tx = NULL,
+		.body_rx = ap_eapol_tlv_kmd_rx,
 	},
 	[IEEE802_1X_ANN_TLV_NID] = {
-		.body_rx = ieee802_1x_tlv_nid_handler,
+		.body_tx = NULL,
+		.body_rx = ap_eapol_tlv_nid_rx,
 	},
 	[0 ... IEEE802_1X_ANN_TLV_MAX] = {
-		.body_rx = ieee802_1x_tlv_default_handler,
+		.body_tx = NULL,
+		.body_rx = ap_eapol_tlv_default_rx,
 	},
 };
 
