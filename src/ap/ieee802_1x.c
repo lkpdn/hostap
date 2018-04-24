@@ -35,6 +35,7 @@
 #include "ieee802_11.h"
 #include "ieee802_1x.h"
 #include "ieee802_1x_kay.h"
+#include "pae/ieee802_1x_kay_i.h"
 #include "pae/ieee802_1x_pae.h"
 
 
@@ -970,6 +971,31 @@ ap_eapol_tlv_access_info_rx(void *priv, size_t len, u8 *info, int packet_type,
 }
 
 
+static void fill_in_cs_tlv(const struct macsec_ciphersuite *cs, void *priv)
+{
+	struct wpabuf *buf = (struct wpabuf *)priv;
+	struct ieee802_1x_eapol_ann_macsec_cs *body;
+
+	body = wpabuf_put(buf, sizeof(struct ieee802_1x_eapol_ann_macsec_cs));
+	if (cs->id == DEFAULT_CS_INDEX)
+		body->capability = cs->capable;
+	body->ieee802_1ae_cs_ref_number = cs->id;
+}
+
+
+static int ap_eapol_tlv_macsec_cs_tx(void *priv, struct wpabuf *buf)
+{
+	/* TODO: not only Global Announcement */
+	struct ieee802_1x_ann_tlv_hdr *hdr;
+
+	hdr = wpabuf_put(buf, sizeof(struct ieee802_1x_ann_tlv_hdr));
+	hdr->type = IEEE802_1X_ANN_TLV_MACSEC_CS;
+
+	for_each_cipher_suite(fill_in_cs_tlv, buf);
+	return 0;
+}
+
+
 static int
 ap_eapol_tlv_macsec_cs_rx(void *priv, size_t len, u8 *info, int packet_type,
 			  char *nid)
@@ -1031,7 +1057,7 @@ ieee802_1x_announcement_handler ieee802_1x_announcement_handlers[] = {
 		.body_rx = ap_eapol_tlv_access_info_rx,
 	},
 	[IEEE802_1X_ANN_TLV_MACSEC_CS] = {
-		.body_tx = NULL,
+		.body_tx = ap_eapol_tlv_macsec_cs_tx,
 		.body_rx = ap_eapol_tlv_macsec_cs_rx,
 	},
 	[IEEE802_1X_ANN_TLV_KMD] = {
