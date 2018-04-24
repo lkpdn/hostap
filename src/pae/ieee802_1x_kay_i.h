@@ -64,6 +64,8 @@ struct macsec_ciphersuite {
 	u32 algindex;
 };
 
+#define DEFAULT_CS_INDEX 1
+
 struct mka_alg {
 	u8 parameter[4];
 	size_t cak_len;

@@ -85,7 +85,6 @@ static struct macsec_ciphersuite cipher_suite_tbl[] = {
 	},
 };
 #define CS_TABLE_SIZE (ARRAY_SIZE(cipher_suite_tbl))
-#define DEFAULT_CS_INDEX  1
 
 static struct mka_alg mka_alg_tbl[] = {
 	{
