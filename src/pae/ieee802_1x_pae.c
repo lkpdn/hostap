@@ -62,8 +62,9 @@ ieee802_1x_pae_validate_announcement(int tlv_type, int packet_type, char *nid)
 /**
  * ieee802_1x_pae_decode_announcement -
  */
-void ieee802_1x_decode_announcement(void *priv, u8 *ann, size_t ann_len, int packet_type,
-				    const ieee802_1x_announcement_handler *handlers)
+void ieee802_1x_decode_announcement(
+		void *priv, u8 *ann, size_t ann_len, int packet_type,
+		const struct ieee802_1x_announcement_handler *handlers)
 {
 	struct ieee802_1x_ann_tlv_hdr *hdr;
 	u8 *pos;
@@ -97,7 +98,8 @@ void ieee802_1x_decode_announcement(void *priv, u8 *ann, size_t ann_len, int pac
 		 */
 		if (ieee802_1x_pae_validate_announcement(type, packet_type,
 							 nid)) {
-			handlers[type & 0x7f](priv, len, pos, packet_type, nid);
+			handlers[type & 0x7f].body_rx(priv, len, pos,
+						      packet_type, nid);
 		}
 
 		pos += len;
@@ -109,9 +111,9 @@ void ieee802_1x_decode_announcement(void *priv, u8 *ann, size_t ann_len, int pac
 /**
  * ieee802_1x_pae_encode_announcement_generic -
  */
-int
-ieee802_1x_pae_encode_announcement_generic(struct ann_body_handler *handlers,
-					   u8 *own_addr, struct wpabuf *pbuf)
+int ieee802_1x_pae_encode_announcement_generic(
+		const struct ieee802_1x_announcement_handler *handlers,
+		u8 *own_addr, struct wpabuf *pbuf)
 {
 	struct ieee8023_hdr *ether_hdr;
 	struct ieee802_1x_hdr *eapol_hdr;

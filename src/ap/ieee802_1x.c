@@ -997,12 +997,22 @@ ieee802_1x_tlv_nid_handler(void *priv, size_t len, u8 *info,
 }
 
 
-static ieee802_1x_announcement_handler ieee802_1x_announcement_handlers[] = {
-	[IEEE802_1X_ANN_TLV_ACCESS_INFO] = ieee802_1x_tlv_access_info_handler,
-	[IEEE802_1X_ANN_TLV_MACSEC_CS] = ieee802_1x_tlv_macsec_cs_handler,
-	[IEEE802_1X_ANN_TLV_KMD] = ieee802_1x_tlv_kmd_handler,
-	[IEEE802_1X_ANN_TLV_NID] = ieee802_1x_tlv_nid_handler,
-	[0 ... IEEE802_1X_ANN_TLV_MAX] = ieee802_1x_tlv_default_handler,
+static struct ieee802_1x_announcement_handler ieee802_1x_announcement_handlers[] = {
+	[IEEE802_1X_ANN_TLV_ACCESS_INFO] = {
+		.body_rx = ieee802_1x_tlv_access_info_handler,
+	},
+	[IEEE802_1X_ANN_TLV_MACSEC_CS] = {
+		.body_rx = ieee802_1x_tlv_macsec_cs_handler,
+	},
+	[IEEE802_1X_ANN_TLV_KMD] = {
+		.body_rx = ieee802_1x_tlv_kmd_handler,
+	},
+	[IEEE802_1X_ANN_TLV_NID] = {
+		.body_rx = ieee802_1x_tlv_nid_handler,
+	},
+	[0 ... IEEE802_1X_ANN_TLV_MAX] = {
+		.body_rx = ieee802_1x_tlv_default_handler,
+	},
 };
 
 
