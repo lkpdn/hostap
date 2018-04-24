@@ -132,7 +132,20 @@ int ieee802_1x_pae_encode_announcement_generic(u8 *own_addr,
 /**
  * ieee802_1x_pae_xmit_announcement -
  */
-void ieee802_1x_xmit_announcement(void *priv)
+void ieee802_1x_xmit_announcement(
+	void *priv, struct eapol_pending_announcement *pending)
 {
-	/* unimplemented */
+	struct os_reltime now, oldest, age;
+
+	os_get_reltime(&now);
+	oldest = pending->last_tx[(pending->last_tx_index + 1)
+				  % (2 * IEEE8021X_ANN_RATE_LIMIT)];
+	if (!oldest.sec && !oldest.usec) {
+		os_reltime_sub(&now, &oldest, &age);
+		if (age.sec > 0) {
+			/* rate limit */
+			return;
+		}
+	}
+	pending->last_tx[pending->last_tx_index++] = now;
 }
