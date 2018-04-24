@@ -109,8 +109,9 @@ void ieee802_1x_decode_announcement(void *priv, u8 *ann, size_t ann_len, int pac
 /**
  * ieee802_1x_pae_encode_announcement_generic -
  */
-int ieee802_1x_pae_encode_announcement_generic(u8 *own_addr,
-					       struct wpabuf *pbuf)
+int
+ieee802_1x_pae_encode_announcement_generic(struct ann_body_handler *handlers,
+					   u8 *own_addr, struct wpabuf *pbuf)
 {
 	struct ieee8023_hdr *ether_hdr;
 	struct ieee802_1x_hdr *eapol_hdr;
@@ -125,7 +126,13 @@ int ieee802_1x_pae_encode_announcement_generic(u8 *own_addr,
 	eapol_hdr->version = EAPOL_VERSION;
 	eapol_hdr->type = IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_GENERIC;
 
-	/* unimplemented */
+	for (i = 0; i < ARRAY_SIZE(handlers); i++) {
+		if (handlers[i].body_tx &&
+		    handlers[i].body_tx(NULL, pbuf))
+			return -1;
+	}
+
+	return 0;
 }
 
 

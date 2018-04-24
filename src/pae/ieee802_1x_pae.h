@@ -20,6 +20,13 @@
 typedef int (*ieee802_1x_announcement_handler)(void *priv, size_t len, u8 *pos,
 					       int packet_type, char *nid);
 
+struct ann_body_handler {
+	int (*body_tx)(void *priv, struct wpabuf *buf);
+	int (*body_rx)(void *priv, const u8 *announce, size_t msg_len);
+	int (*body_length)(void *priv);
+	Boolean (*body_present)(void *priv);
+};
+
 struct eapol_pending_announcement {
 	struct os_reltime last_tx[2 * IEEE8021X_ANN_RATE_LIMIT];
 	u8 last_tx_index;
@@ -40,7 +47,8 @@ struct ieee802_1x_peer_pae {
 void ieee802_1x_decode_announcement(void *priv, u8 *ann, size_t ann_len,
 				    int packet_type,
 				    const ieee802_1x_announcement_handler *hdr);
-int ieee802_1x_pae_encode_announcement_generic(u8 *addr, struct wpabuf *pbuf);
+int ieee802_1x_pae_encode_announcement_generic(struct ann_body_handler *handlers,
+					       u8 *addr, struct wpabuf *pbuf);
 void ieee802_1x_xmit_announcement(void *priv,
 				  struct eapol_pending_announcement *pending);
 
