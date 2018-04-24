@@ -121,6 +121,17 @@ static struct mka_alg mka_alg_tbl[] = {
 #define MKA_ALG_TABLE_SIZE (ARRAY_SIZE(mka_alg_tbl))
 
 
+void for_each_cipher_suite(void(*cb)(const struct macsec_ciphersuite *,
+			   void *), void *priv)
+{
+        int i;
+
+        for (i = 0; i < ARRAY_SIZE(cipher_suite_tbl); i++) {
+                cb(&cipher_suite_tbl[i], priv);
+        }
+}
+
+
 static int is_ki_equal(struct ieee802_1x_mka_ki *ki1,
 		       struct ieee802_1x_mka_ki *ki2)
 {
