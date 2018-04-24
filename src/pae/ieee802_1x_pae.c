@@ -113,7 +113,7 @@ void ieee802_1x_decode_announcement(
  */
 int ieee802_1x_pae_encode_announcement_generic(
 		const struct ieee802_1x_announcement_handler *handlers,
-		u8 *own_addr, struct wpabuf *pbuf)
+		u8 *own_addr, struct wpabuf *pbuf, void *priv)
 {
 	struct ieee8023_hdr *ether_hdr;
 	struct ieee802_1x_hdr *eapol_hdr;
@@ -130,7 +130,7 @@ int ieee802_1x_pae_encode_announcement_generic(
 
 	for (i = 0; i < ARRAY_SIZE(handlers); i++) {
 		if (handlers[i].body_tx &&
-		    handlers[i].body_tx(NULL, pbuf))
+		    handlers[i].body_tx(priv, pbuf))
 			return -1;
 	}
 

@@ -46,7 +46,7 @@ void ieee802_1x_decode_announcement(
 		const struct ieee802_1x_announcement_handler *hdr);
 int ieee802_1x_pae_encode_announcement_generic(
 		const struct ieee802_1x_announcement_handler *handlers,
-		u8 *addr, struct wpabuf *pbuf);
+		u8 *addr, struct wpabuf *pbuf, void *priv);
 void ieee802_1x_xmit_announcement(
 		void *priv, struct eapol_pending_announcement *pending);
 
