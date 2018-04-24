@@ -929,6 +929,30 @@ ap_eapol_tlv_default_rx(void *priv, size_t len, u8 *info, int packet_type,
 
 
 static int
+ap_eapol_tlv_access_info_tx(void *priv, struct wpabuf *buf)
+{
+	/* TODO: not only Global Announcement */
+	struct sta_info *sta = (struct sta_info *)priv;
+	struct eapol_pending_announcement *pending;
+	struct ieee802_1x_ann_tlv_hdr *hdr;
+	struct ieee802_1x_eapol_ann_tlv_access_info *info;
+
+	hdr = wpabuf_put(buf, sizeof(struct ieee802_1x_ann_tlv_hdr) + 2);
+	hdr->type = IEEE802_1X_ANN_TLV_ACCESS_INFO;
+	hdr->len = 2;
+
+	pending = &sta->pae.pending_announcement;
+	info = (struct ieee802_1x_eapol_ann_tlv_access_info *)(hdr + 1);
+	info->status = pending->access_status;
+	info->requested = pending->access_requested;
+	info->capabilities = sta->eapol_sm->eapol->conf.access_caps &
+			     pending->last_rx.access_capabilities;
+
+	return 0;
+}
+
+
+static int
 ap_eapol_tlv_access_info_rx(void *priv, size_t len, u8 *info, int packet_type,
 			    char *nid)
 {
@@ -1003,7 +1027,7 @@ ap_eapol_tlv_nid_rx(void *priv, size_t len, u8 *info, int packet_type,
 static struct
 ieee802_1x_announcement_handler ieee802_1x_announcement_handlers[] = {
 	[IEEE802_1X_ANN_TLV_ACCESS_INFO] = {
-		.body_tx = NULL,
+		.body_tx = ap_eapol_tlv_access_info_tx,
 		.body_rx = ap_eapol_tlv_access_info_rx,
 	},
 	[IEEE802_1X_ANN_TLV_MACSEC_CS] = {
