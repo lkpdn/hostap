@@ -1040,6 +1040,18 @@ static Boolean ap_eapol_tlv_macsec_cs_present(void *priv)
 }
 
 
+static int ap_eapol_tlv_kmd_tx(void *priv, struct wpabuf *buf)
+{
+	struct sta_info *sta = (struct sta_info *)priv;
+	struct ieee802_1x_ann_tlv_hdr *hdr;
+
+	hdr = wpabuf_put(buf, sizeof(struct ieee802_1x_ann_tlv_hdr));
+	hdr->type = IEEE802_1X_ANN_TLV_KMD;
+	hdr->len = 0;
+	return 0;
+}
+
+
 static int
 ap_eapol_tlv_kmd_rx(void *priv, size_t len, u8 *info, int packet_type,
 		    char *nid)
@@ -1082,7 +1094,7 @@ ieee802_1x_announcement_handler ieee802_1x_announcement_handlers[] = {
 		.body_present = ap_eapol_tlv_macsec_cs_present,
 	},
 	[IEEE802_1X_ANN_TLV_KMD] = {
-		.body_tx      = NULL,
+		.body_tx      = ap_eapol_tlv_kmd_tx,
 		.body_rx      = ap_eapol_tlv_kmd_rx,
 		.body_present = ap_eapol_tlv_kmd_present,
 	},
