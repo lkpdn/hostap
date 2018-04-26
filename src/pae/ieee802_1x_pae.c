@@ -113,10 +113,12 @@ void ieee802_1x_decode_announcement(
  */
 int ieee802_1x_pae_encode_announcement_generic(
 		const struct ieee802_1x_announcement_handler *handlers,
-		u8 *own_addr, struct wpabuf *pbuf, void *priv)
+		char *nid, u8 *own_addr, struct wpabuf *pbuf, void *priv)
 {
 	struct ieee8023_hdr *ether_hdr;
 	struct ieee802_1x_hdr *eapol_hdr;
+	struct ieee802_1x_ann_tlv_hdr *nid_header;
+	size_t nid_offset;
 	int i;
 
 	ether_hdr = wpabuf_put(pbuf, sizeof(*ether_hdr));
@@ -128,12 +130,25 @@ int ieee802_1x_pae_encode_announcement_generic(
 	eapol_hdr->version = EAPOL_VERSION;
 	eapol_hdr->type = IEEE802_1X_TYPE_EAPOL_ANNOUNCEMENT_GENERIC;
 
-	for (i = 0; i < ARRAY_SIZE(handlers); i++) {
-		if (handlers[i].body_tx &&
-		    handlers[i].body_present(priv) &&
-		    handlers[i].body_tx(priv, pbuf))
+	if (nid) {
+		if (!handlers[IEEE802_1X_ANN_TLV_NID].body_present(priv, nid))
+			return -1;
+
+		nid_header = (struct ieee802_1x_ann_tlv_hdr *) pbuf->buf;
+		nid_offset = pbuf->used;
+		if (handlers[IEEE802_1X_ANN_TLV_NID].body_tx(priv, pbuf, nid))
 			return -1;
 	}
+
+	for (i = 0; i < ARRAY_SIZE(handlers); i++) {
+		if (handlers[i].body_tx &&
+		    handlers[i].body_present(priv, nid) &&
+		    handlers[i].body_tx(priv, pbuf, nid))
+			return -1;
+	}
+
+	if (nid)
+		nid_header->len = pbuf->used - nid_offset - 2;
 
 	return 0;
 }
