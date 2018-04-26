@@ -18,10 +18,10 @@
 #define ANNOUNCEMENT_TIME 5000
 
 struct ieee802_1x_announcement_handler {
-	int (*body_tx)(void *priv, struct wpabuf *buf);
+	int (*body_tx)(void *priv, struct wpabuf *buf, char *nid);
 	int (*body_rx)(void *priv, size_t len, u8* pos, int packet_type, char *nid);
-	int (*body_length)(void *priv);
-	Boolean (*body_present)(void *priv);
+	int (*body_length)(void *priv, char *nid);
+	Boolean (*body_present)(void *priv, char *nid);
 };
 
 struct eapol_pending_announcement {

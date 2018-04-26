@@ -930,7 +930,7 @@ ap_eapol_tlv_default_rx(void *priv, size_t len, u8 *info, int packet_type,
 
 
 static int
-ap_eapol_tlv_access_info_tx(void *priv, struct wpabuf *buf)
+ap_eapol_tlv_access_info_tx(void *priv, struct wpabuf *buf, char *nid)
 {
 	/* TODO: not only Global Announcement */
 	struct sta_info *sta = (struct sta_info *)priv;
@@ -971,7 +971,7 @@ ap_eapol_tlv_access_info_rx(void *priv, size_t len, u8 *info, int packet_type,
 }
 
 
-static Boolean ap_eapol_tlv_access_info_present(void *priv)
+static Boolean ap_eapol_tlv_access_info_present(void *priv, char *nid)
 {
 	return TRUE;
 }
@@ -989,7 +989,7 @@ static void fill_in_cs_tlv(const struct macsec_ciphersuite *cs, void *priv)
 }
 
 
-static int ap_eapol_tlv_macsec_cs_tx(void *priv, struct wpabuf *buf)
+static int ap_eapol_tlv_macsec_cs_tx(void *priv, struct wpabuf *buf, char *nid)
 {
 	/* TODO: not only Global Announcement */
 	struct ieee802_1x_ann_tlv_hdr *hdr;
@@ -1034,13 +1034,13 @@ ap_eapol_tlv_macsec_cs_rx(void *priv, size_t len, u8 *info, int packet_type,
 }
 
 
-static Boolean ap_eapol_tlv_macsec_cs_present(void *priv)
+static Boolean ap_eapol_tlv_macsec_cs_present(void *priv, char *nid)
 {
 	return TRUE;
 }
 
 
-static int ap_eapol_tlv_kmd_tx(void *priv, struct wpabuf *buf)
+static int ap_eapol_tlv_kmd_tx(void *priv, struct wpabuf *buf, char *nid)
 {
 	struct sta_info *sta = (struct sta_info *)priv;
 	struct ieee802_1x_ann_tlv_hdr *hdr;
@@ -1062,7 +1062,7 @@ ap_eapol_tlv_kmd_rx(void *priv, size_t len, u8 *info, int packet_type,
 }
 
 
-static Boolean ap_eapol_tlv_kmd_present(void *priv)
+static Boolean ap_eapol_tlv_kmd_present(void *priv, char *nid)
 {
 	/* Currently we do not cache keys at all */
 	return TRUE;
