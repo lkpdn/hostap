@@ -955,7 +955,7 @@ static int
 ap_eapol_tlv_access_info_rx(void *priv, size_t len, u8 *info, int packet_type,
 			    char *nid)
 {
-	u8 access_caps;
+	struct sta_info *sta = (struct sta_info *)priv;
 
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "Access Information");
@@ -964,7 +964,7 @@ ap_eapol_tlv_access_info_rx(void *priv, size_t len, u8 *info, int packet_type,
 	}
 	/* In AP-side handling of Access Information TLV, it's enough to
 	 * see in Access Capabilities */
-	access_caps = info[1];
+	sta->pae.pending_announcement->last_rx.access_capabilities = info[1];
 	return 0;
 }
 
@@ -1004,6 +1004,9 @@ static int
 ap_eapol_tlv_macsec_cs_rx(void *priv, size_t len, u8 *info, int packet_type,
 			  char *nid)
 {
+	struct sta_info *sta = (struct sta_info *)priv;
+	struct ieee802_1x_eapol_ann_macsec_cs *new_cs;
+	enum macsec_cap cap;
 	int i, num;
 	u16 cap_bits;
 	u64 ref_number;
@@ -1018,15 +1021,31 @@ ap_eapol_tlv_macsec_cs_rx(void *priv, size_t len, u8 *info, int packet_type,
 		 */
 		return 0;
 	}
-	for (i = 0, num = len / 10; i < num; i++) {
+
+	num = len / 10;
+	new_cs = os_realloc_array(sta->pae.pending_announcement->last_rx.cs,
+			num, sizeof(struct ieee802_1x_eapol_ann_macsec_cs));
+
+	if (!new_cs) {
+		os_free(sta->pae.pending_announcement->last_rx.cs);
+		return -1;
+	}
+
+	for (i = 0; i < num; i++) {
 		cap_bits = be_to_host16(info);
 		ref_number = be_to_host64(info + 2);
 
 		if (ref_number == CS_ID_GCM_AES_128_OBSOLETE |
-		    ref_number == CS_ID_GCM_AES_128) {
-			enum macsec_cap cap = cap_bits & 0x03;
-		}
+		    ref_number == CS_ID_GCM_AES_128)
+			cap = cap_bits & 0x03;
+		else
+			cap = 0;
+
+		new_cs[i].capability = cap;
+		new_cs[i].ieee802_1ae_cs_ref_number = ref_number;
 	}
+
+	sta->pae.pending_announcement->last_rx.cs = new_cs;
 
 	return 0;
 }
