@@ -1069,6 +1069,18 @@ static Boolean ap_eapol_tlv_kmd_present(void *priv, char *nid)
 }
 
 
+static int ap_eapol_tlv_nid_tx(void *priv, struct wpabuf *buf, char *nid)
+{
+	struct sta_info *sta = (struct sta_info *)priv;
+	struct ieee802_1x_ann_tlv_hdr *hdr;
+
+	hdr = wpabuf_put(buf, sizeof(struct ieee802_1x_ann_tlv_hdr));
+	hdr->type = IEEE802_1X_ANN_TLV_NID;
+	hdr->len = 0; /* XXX: Later filled in. We could do in better way. */
+	return 0;
+}
+
+
 static int
 ap_eapol_tlv_nid_rx(void *priv, size_t len, u8 *info, int packet_type,
 		    char *nid)
@@ -1078,6 +1090,18 @@ ap_eapol_tlv_nid_rx(void *priv, size_t len, u8 *info, int packet_type,
 	os_memcpy(nid, info, len);
 	nid[len] = '\0';
 	return 0;
+}
+
+
+static Boolean ap_eapol_tlv_nid_present(void *priv, char *nid)
+{
+	struct sta_info *sta = (struct sta_info *)priv;
+
+	/* XXX: We may have to call handlers in a super BSS context */
+	if (os_strcmp(sta->eapol_sm->eapol->conf.nid, nid) == 0)
+		return TRUE;
+
+	return FALSE;
 }
 
 
@@ -1099,8 +1123,9 @@ ieee802_1x_announcement_handler ieee802_1x_announcement_handlers[] = {
 		.body_present = ap_eapol_tlv_kmd_present,
 	},
 	[IEEE802_1X_ANN_TLV_NID] = {
-		.body_tx = NULL,
-		.body_rx = ap_eapol_tlv_nid_rx,
+		.body_tx      = ap_eapol_tlv_nid_tx,
+		.body_rx      = ap_eapol_tlv_nid_rx,
+		.body_present = ap_eapol_tlv_nid_present,
 	},
 	[0 ... IEEE802_1X_ANN_TLV_MAX] = {
 		.body_tx = NULL,
