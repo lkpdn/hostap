@@ -920,12 +920,10 @@ ieee802_1x_generic_announcement_timeout(void *eloop_ctx, void *timeout_ctx)
 /*
  * ieee802_1x_announcement_handler implementations
  */
-static int
-ap_eapol_tlv_default_rx(void *priv, size_t len, u8 *info, int packet_type,
-			char *nid)
+static Boolean ap_eapol_tlv_default_present(void *priv, char *nid)
 {
-	wpa_printf(MSG_DEBUG, "IEEE 802.1X: Ignored EAPOL-Announcement");
-	return 0;
+	/* IEEE 802.1X-2010 11.12.8 d) - let's ignore */
+	return FALSE;
 }
 
 
@@ -1128,8 +1126,9 @@ ieee802_1x_announcement_handler ieee802_1x_announcement_handlers[] = {
 		.body_present = ap_eapol_tlv_nid_present,
 	},
 	[0 ... IEEE802_1X_ANN_TLV_MAX] = {
-		.body_tx = NULL,
-		.body_rx = ap_eapol_tlv_default_rx,
+		.body_tx      = NULL,
+		.body_rx      = NULL,
+		.body_present = ap_eapol_tlv_default_present,
 	},
 };
 
