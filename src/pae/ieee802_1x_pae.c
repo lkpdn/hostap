@@ -130,6 +130,7 @@ int ieee802_1x_pae_encode_announcement_generic(
 
 	for (i = 0; i < ARRAY_SIZE(handlers); i++) {
 		if (handlers[i].body_tx &&
+		    handlers[i].body_present(priv) &&
 		    handlers[i].body_tx(priv, pbuf))
 			return -1;
 	}
