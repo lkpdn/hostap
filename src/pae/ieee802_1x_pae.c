@@ -115,7 +115,20 @@ int ieee802_1x_pae_len_announcement_generic(
 		const struct ieee802_1x_announcement_handler *handlers,
 		char *nid, struct wpabuf *pbuf, void *priv)
 {
-	return 0;
+	int i, length = 0;
+
+	length += sizeof(struct ieee802_1x_hdr);
+
+	for (i = 0; i < ARRAY_SIZE(handlers); i++) {
+		if (i == IEEE802_1X_ANN_TLV_NID && !nid)
+			continue;
+
+		if (handlers[i].body_tx &&
+		    handlers[i].body_present(priv, nid))
+		    length += handlers[i].body_length(priv, nid);
+	}
+
+	return length;
 }
 
 
