@@ -1313,6 +1313,9 @@ void ieee802_1x_receive(struct hostapd_data *hapd, const u8 *sa, const u8 *buf,
 					sta->eapol_sm->eapol, buf, datalen - 1,
 					IEEE802_1X_TYPE_EAPOL_START,
 					ieee802_1x_announcement_handlers);
+				ieee802_1x_xmit_announcement(
+					sta, ieee802_1x_generic_announcement_timeout,
+					sta->pae.pending_announcement);
 			}
 #ifdef CONFIG_MACSEC
 			/* init KaY */
