@@ -158,7 +158,8 @@ int ieee802_1x_pae_encode_announcement_generic(
  * ieee802_1x_pae_xmit_announcement -
  */
 void ieee802_1x_xmit_announcement(
-	void *priv, struct eapol_pending_announcement *pending)
+	void *priv, void(*timeout)(void *eloop_ctx, void *timeout_ctx),
+	struct eapol_pending_announcement *pending)
 {
 	struct os_reltime now, oldest, age;
 
@@ -173,4 +174,7 @@ void ieee802_1x_xmit_announcement(
 		}
 	}
 	pending->last_tx[pending->last_tx_index++] = now;
+
+	eloop_register_timeout(IEEE8021X_ANN_DELAY / 1000, 0,
+			       timeout, priv, NULL);
 }

@@ -48,6 +48,7 @@ int ieee802_1x_pae_encode_announcement_generic(
 		const struct ieee802_1x_announcement_handler *handlers,
 		char *nid, u8 *addr, struct wpabuf *pbuf, void *priv);
 void ieee802_1x_xmit_announcement(
-		void *priv, struct eapol_pending_announcement *pending);
+		void *priv, void(*timeout)(void *eloop_ctx, void *timeout_ctx),
+		struct eapol_pending_announcement *pending);
 
 #endif /* IEEE802_1X_PAE_H */
