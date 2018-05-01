@@ -109,6 +109,17 @@ void ieee802_1x_decode_announcement(
 
 
 /**
+ * ieee802_1x_pae_len_announcement_generic -
+ */
+int ieee802_1x_pae_len_announcement_generic(
+		const struct ieee802_1x_announcement_handler *handlers,
+		char *nid, u8 *own_addr, struct wpabuf *pbuf, void *priv)
+{
+	return 0;
+}
+
+
+/**
  * ieee802_1x_pae_encode_announcement_generic -
  */
 int ieee802_1x_pae_encode_announcement_generic(
