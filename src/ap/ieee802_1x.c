@@ -950,7 +950,8 @@ ap_eapol_tlv_access_info_rx(void *priv, size_t len, u8 *info, int packet_type,
 static int
 ap_eapol_tlv_access_info_length(void *priv, char *nid)
 {
-	return 0;
+	return sizeof(struct ieee802_1x_ann_tlv_hdr) +
+	       sizeof(struct ieee802_1x_eapol_ann_tlv_access_info);
 }
 
 
@@ -1036,9 +1037,18 @@ ap_eapol_tlv_macsec_cs_rx(void *priv, size_t len, u8 *info, int packet_type,
 }
 
 
+static int cumulate_cs_tlv_len(const struct macsec_ciphersuite *cs, void *priv)
+{
+	return (int)priv + sizeof(struct ieee802_1x_eapol_ann_tlv_macsec_cs);
+}
+
+
 static int ap_eapol_tlv_macsec_cs_length(void *priv, char *nid)
 {
-	return 0;
+	int len = 0;
+
+	for_each_cipher_suite(cumulate_cs_tlv_len, len);
+	return sizeof(struct ieee802_1x_ann_tlv_hdr) + len;
 }
 
 
@@ -1072,7 +1082,7 @@ ap_eapol_tlv_kmd_rx(void *priv, size_t len, u8 *info, int packet_type,
 
 static int ap_eapol_tlv_kmd_length(void *priv, char *nid)
 {
-	return 0;
+	return sizeof(struct ieee802_1x_ann_tlv_hdr);
 }
 
 
@@ -1109,7 +1119,7 @@ ap_eapol_tlv_nid_rx(void *priv, size_t len, u8 *info, int packet_type,
 
 static int ap_eapol_tlv_nid_length(void *priv, char *nid)
 {
-	return 0;
+	return sizeof(struct ieee802_1x_ann_tlv_hdr);
 }
 
 
