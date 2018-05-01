@@ -947,6 +947,13 @@ ap_eapol_tlv_access_info_rx(void *priv, size_t len, u8 *info, int packet_type,
 }
 
 
+static int
+ap_eapol_tlv_access_info_length(void *priv, char *nid)
+{
+	return 0;
+}
+
+
 static Boolean ap_eapol_tlv_access_info_present(void *priv, char *nid)
 {
 	return TRUE;
@@ -1029,6 +1036,12 @@ ap_eapol_tlv_macsec_cs_rx(void *priv, size_t len, u8 *info, int packet_type,
 }
 
 
+static int ap_eapol_tlv_macsec_cs_length(void *priv, char *nid)
+{
+	return 0;
+}
+
+
 static Boolean ap_eapol_tlv_macsec_cs_present(void *priv, char *nid)
 {
 	return TRUE;
@@ -1053,6 +1066,12 @@ ap_eapol_tlv_kmd_rx(void *priv, size_t len, u8 *info, int packet_type,
 {
 	wpa_printf(MSG_DEBUG, "IEEE 802.1X: EAPOL-Announcement: "
 		   "Key Management Domain");
+	return 0;
+}
+
+
+static int ap_eapol_tlv_kmd_length(void *priv, char *nid)
+{
 	return 0;
 }
 
@@ -1088,6 +1107,12 @@ ap_eapol_tlv_nid_rx(void *priv, size_t len, u8 *info, int packet_type,
 }
 
 
+static int ap_eapol_tlv_nid_length(void *priv, char *nid)
+{
+	return 0;
+}
+
+
 static Boolean ap_eapol_tlv_nid_present(void *priv, char *nid)
 {
 	struct sta_info *sta = (struct sta_info *)priv;
@@ -1105,26 +1130,31 @@ ieee802_1x_announcement_handler ieee802_1x_announcement_handlers[] = {
 	[IEEE802_1X_ANN_TLV_ACCESS_INFO] = {
 		.body_tx      = ap_eapol_tlv_access_info_tx,
 		.body_rx      = ap_eapol_tlv_access_info_rx,
+		.body_length  = ap_eapol_tlv_access_info_length,
 		.body_present = ap_eapol_tlv_access_info_present,
 	},
 	[IEEE802_1X_ANN_TLV_MACSEC_CS] = {
 		.body_tx      = ap_eapol_tlv_macsec_cs_tx,
 		.body_rx      = ap_eapol_tlv_macsec_cs_rx,
+		.body_length  = ap_eapol_tlv_macsec_cs_length,
 		.body_present = ap_eapol_tlv_macsec_cs_present,
 	},
 	[IEEE802_1X_ANN_TLV_KMD] = {
 		.body_tx      = ap_eapol_tlv_kmd_tx,
 		.body_rx      = ap_eapol_tlv_kmd_rx,
+		.body_length  = ap_eapol_tlv_kmd_length,
 		.body_present = ap_eapol_tlv_kmd_present,
 	},
 	[IEEE802_1X_ANN_TLV_NID] = {
 		.body_tx      = ap_eapol_tlv_nid_tx,
 		.body_rx      = ap_eapol_tlv_nid_rx,
+		.body_length  = ap_eapol_tlv_nid_length,
 		.body_present = ap_eapol_tlv_nid_present,
 	},
 	[0 ... IEEE802_1X_ANN_TLV_MAX] = {
 		.body_tx      = NULL,
 		.body_rx      = NULL,
+		.body_length  = NULL,
 		.body_present = ap_eapol_tlv_default_present,
 	},
 };
