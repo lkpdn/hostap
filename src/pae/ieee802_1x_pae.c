@@ -113,7 +113,7 @@ void ieee802_1x_decode_announcement(
  */
 int ieee802_1x_pae_len_announcement_generic(
 		const struct ieee802_1x_announcement_handler *handlers,
-		char *nid, u8 *own_addr, struct wpabuf *pbuf, void *priv)
+		char *nid, struct wpabuf *pbuf, void *priv)
 {
 	return 0;
 }
@@ -124,18 +124,12 @@ int ieee802_1x_pae_len_announcement_generic(
  */
 int ieee802_1x_pae_encode_announcement_generic(
 		const struct ieee802_1x_announcement_handler *handlers,
-		char *nid, u8 *own_addr, struct wpabuf *pbuf, void *priv)
+		char *nid, struct wpabuf *pbuf, void *priv)
 {
-	struct ieee8023_hdr *ether_hdr;
 	struct ieee802_1x_hdr *eapol_hdr;
 	struct ieee802_1x_ann_tlv_hdr *nid_header;
 	size_t nid_offset;
 	int i;
-
-	ether_hdr = wpabuf_put(pbuf, sizeof(*ether_hdr));
-	os_memcpy(ether_hdr->dest, pae_group_addr, sizeof(ether_hdr->dest));
-	os_memcpy(ether_hdr->src, own_addr, sizeof(ether_hdr->src));
-	ether_hdr->ethertype = host_to_be16(ETH_P_EAPOL);
 
 	eapol_hdr = wpabuf_put(pbuf, sizeof(*eapol_hdr));
 	eapol_hdr->version = EAPOL_VERSION;
