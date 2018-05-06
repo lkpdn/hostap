@@ -1006,6 +1006,7 @@ struct wpa_supplicant {
 	} hw_capab;
 #ifdef CONFIG_MACSEC
 	struct ieee802_1x_kay *kay;
+	struct ieee802_1x_peer_pae *pae;
 #endif /* CONFIG_MACSEC */
 
 	int pno;
