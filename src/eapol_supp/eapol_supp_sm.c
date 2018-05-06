@@ -1544,6 +1544,7 @@ void eapol_sm_notify_config(struct eapol_sm *sm,
 	if (conf == NULL)
 		return;
 
+	sm->conf.eapol_version = conf->eapol_version;
 	sm->conf.accept_802_1x_keys = conf->accept_802_1x_keys;
 	sm->conf.required_keys = conf->required_keys;
 	sm->conf.fast_reauth = conf->fast_reauth;

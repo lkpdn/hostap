@@ -301,6 +301,7 @@ void wpa_supplicant_initiate_eapol(struct wpa_supplicant *wpa_s)
 		eapol_sm_notify_portControl(wpa_s->eapol, Auto);
 
 	os_memset(&eapol_conf, 0, sizeof(eapol_conf));
+	eapol_conf.eapol_version = wpa_s->conf->eapol_version;
 	if (wpa_s->key_mgmt == WPA_KEY_MGMT_IEEE8021X_NO_WPA) {
 		eapol_conf.accept_802_1x_keys = 1;
 		eapol_conf.required_keys = 0;

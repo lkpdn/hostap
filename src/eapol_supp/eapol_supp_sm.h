@@ -19,6 +19,11 @@ typedef enum { Auto, ForceUnauthorized, ForceAuthorized } PortControl;
  */
 struct eapol_config {
 	/**
+	 * eapol_version - IEEE 802.1X/EAPOL version number
+	 */
+	int eapol_version;
+
+	/**
 	 * accept_802_1x_keys - Accept IEEE 802.1X (non-WPA) EAPOL-Key frames
 	 *
 	 * This variable should be set to 1 when using EAPOL state machines
