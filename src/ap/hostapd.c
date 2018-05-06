@@ -2538,6 +2538,7 @@ int hostapd_disable_iface(struct hostapd_iface *hapd_iface)
 		struct hostapd_data *hapd = hapd_iface->bss[j];
 		hostapd_bss_deinit_no_free(hapd);
 		hostapd_free_hapd_data(hapd);
+		ieee802_1x_dealloc_kay_sm(hapd);
 	}
 
 	hostapd_deinit_driver(driver, drv_priv, hapd_iface);
