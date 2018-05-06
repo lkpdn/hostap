@@ -170,6 +170,16 @@ struct eapol_ctx {
 			   const u8 *key, size_t keylen);
 
 	/**
+	 * eapol_encode_announcement - Encode EAPOL announcement TLVs
+	 * @ctx: Callback context (eapol_send_ctx)
+	 * @type: EAPOL type (IEEE802_1X_TYPE_*)
+	 * @buf: Buffer to put EAPOL Announcement TLVs
+	 * Returns: 0 on success, -1 on failure
+	 */
+	int (*eapol_encode_announcement)(void *ctx, int type,
+					 struct wpabuf *pbuf);
+
+	/**
 	 * set_config_blob - Set or add a named configuration blob
 	 * @ctx: Callback context (ctx)
 	 * @blob: New value for the blob

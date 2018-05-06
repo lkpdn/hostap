@@ -246,6 +246,24 @@ static int wpa_eapol_set_wep_key(void *ctx, int unicast, int keyidx,
 }
 
 
+/**
+ * wpa_supplicant_encode_eapol_announcement - Encode EAPOL announcement TLVs
+ * @ctx: Pointer to wpa_supplicant data (wpa_s)
+ * @type: IEEE 802.1X packet type (IEEE802_1X_TYPE_*)
+ * @buf: EAPOL Announcement TLVs buffer to fill
+ * Returns: >=0 on success, <0 on failure
+ *
+ * This function encodes EAPOL Announcement TLVs and return the filled buffer
+ * and its length via arguments buf and len respectively.
+ */
+static int
+wpa_supplicant_encode_eapol_announcement(void *ctx, int type,
+					 struct wpabuf *pbuf)
+{
+	return 0;
+}
+
+
 static void wpa_supplicant_aborted_cached(void *ctx)
 {
 	struct wpa_supplicant *wpa_s = ctx;
@@ -1094,6 +1112,7 @@ int wpa_supplicant_init_eapol(struct wpa_supplicant *wpa_s)
 	ctx->eapol_done_cb = wpa_supplicant_notify_eapol_done;
 	ctx->eapol_send = wpa_supplicant_eapol_send;
 	ctx->set_wep_key = wpa_eapol_set_wep_key;
+	ctx->eapol_encode_announcement = wpa_supplicant_encode_eapol_announcement;
 #ifndef CONFIG_NO_CONFIG_BLOBS
 	ctx->set_config_blob = wpa_supplicant_set_config_blob;
 	ctx->get_config_blob = wpa_supplicant_get_config_blob;
