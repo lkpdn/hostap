@@ -173,6 +173,28 @@ int ieee802_1x_pae_encode_announcement_generic(
 
 
 /**
+ * ieee802_1x_pae_len_announcement_specific -
+ */
+int ieee802_1x_pae_len_announcement_specific(
+		const struct ieee802_1x_announcement_handler *handlers,
+		char *nid, struct wpabuf *pbuf, void *priv)
+{
+	return 0;
+}
+
+
+/**
+ * ieee802_1x_pae_encode_announcement_specific -
+ */
+int ieee802_1x_pae_encode_announcement_specific(
+		const struct ieee802_1x_announcement_handler *handlers,
+		char *nid, struct wpabuf *pbuf, void *priv)
+{
+	return 0;
+}
+
+
+/**
  * ieee802_1x_pae_xmit_announcement -
  */
 void ieee802_1x_xmit_announcement(

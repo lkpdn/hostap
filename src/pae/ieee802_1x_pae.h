@@ -50,6 +50,12 @@ int ieee802_1x_pae_len_announcement_generic(
 int ieee802_1x_pae_encode_announcement_generic(
 		const struct ieee802_1x_announcement_handler *handlers,
 		char *nid, struct wpabuf *pbuf, void *priv);
+int ieee802_1x_pae_len_announcement_specific(
+		const struct ieee802_1x_announcement_handler *handlers,
+		char *nid, struct wpabuf *pbuf, void *priv);
+int ieee802_1x_pae_encode_announcement_specific(
+		const struct ieee802_1x_announcement_handler *handlers,
+		char *nid, struct wpabuf *pbuf, void *priv);
 void ieee802_1x_xmit_announcement(
 		void *priv, void(*timeout)(void *eloop_ctx, void *timeout_ctx),
 		struct eapol_pending_announcement *pending);
