@@ -654,9 +654,27 @@ static void eapol_sm_txLogoff(struct eapol_sm *sm)
 
 static void eapol_sm_txStart(struct eapol_sm *sm)
 {
+	struct wpabuf *pbuf;
+	struct ieee802_1x_eapol_start *hdr;
+
 	wpa_printf(MSG_DEBUG, "EAPOL: txStart");
+	if (sm->conf.eapol_version > 2) {
+		pbuf = wpabuf_alloc(1);
+		if (!pbuf) {
+			wpa_printf(MSG_ERROR, "SUPP: out of memory");
+			goto out;
+		}
+		hdr = wpabuf_put(pbuf, 1);
+		hdr->request = 1; /* soliciting */
+
+		sm->ctx->eapol_encode_announcement(
+			sm->ctx->eapol_send_ctx,
+			IEEE802_1X_TYPE_EAPOL_START, pbuf);
+	}
+out:
 	sm->ctx->eapol_send(sm->ctx->eapol_send_ctx,
-			    IEEE802_1X_TYPE_EAPOL_START, (u8 *) "", 0);
+			    IEEE802_1X_TYPE_EAPOL_START, wpabuf_head(pbuf),
+			    wpabuf_len(pbuf));
 	sm->dot1xSuppEapolStartFramesTx++;
 	sm->dot1xSuppEapolFramesTx++;
 }
