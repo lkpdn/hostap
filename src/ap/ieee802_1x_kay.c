@@ -297,6 +297,16 @@ int ieee802_1x_alloc_kay_sm(struct hostapd_data *hapd)
 };
 
 
+int ieee802_1x_dealloc_kay_sm(struct hostapd_data *hapd)
+{
+	if (!hapd->kay)
+		return;
+
+	ieee802_1x_kay_deinit(hapd->kay);
+	hapd->kay = NULL;
+}
+
+
 void * ieee802_1x_create_actor(struct hostapd_data *hapd,
 			       struct sta_info *sta)
 {
