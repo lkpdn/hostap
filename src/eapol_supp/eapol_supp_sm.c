@@ -1343,6 +1343,16 @@ int eapol_tlv_nid_length(void *priv, char *nid)
 
 Boolean eapol_tlv_nid_present(void *priv, char *nid)
 {
+	/* We do not set NID Set TLVs because we already have chosen a BSS on
+	 * driver initialization (-> wpa_supplicant_scan) but we have not yet
+	 * implemented fallback connection attempt. Currently we would have to
+	 * tear down all EAPOL relevant stuffs and tweak configured network
+	 * priorities before next attempt, which I think would be too aggressive.
+	 *
+	 * Perhaps it might be better to integrate network scanning with
+	 * EAPOL-Announcement-Req, which reflects configured priorities.
+	 * That way, we will be able to accomplish fallback connectivity.
+	 */
 	return FALSE;
 }
 
