@@ -10,6 +10,7 @@
 #define EAPOL_SUPP_SM_H
 
 #include "common/defs.h"
+#include "pae/ieee802_1x_pae.h"
 
 typedef enum { Unauthorized, Authorized } PortStatus;
 typedef enum { Auto, ForceUnauthorized, ForceAuthorized } PortControl;
@@ -370,6 +371,21 @@ int eapol_sm_get_erp_info(struct eapol_sm *sm, struct eap_peer_config *config,
 			  const u8 **realm, size_t *realm_len,
 			  u16 *erp_next_seq_num, const u8 **rrk,
 			  size_t *rrk_len);
+Boolean eapol_tlv_default_present(void *priv, char *nid);
+int eapol_tlv_access_info_tx(void *priv, struct wpabuf *buf, char *nid);
+int eapol_tlv_access_info_rx(void *priv, size_t len, u8 *info,
+			     int packet_type, char *nid);
+int eapol_tlv_access_info_length(void *priv, char *nid);
+Boolean eapol_tlv_access_info_present(void *priv, char *nid);
+int eapol_tlv_macsec_cs_rx(void *priv, size_t len, u8 *info,
+			   int packet_type, char *nid);
+int eapol_tlv_kmd_rx(void *priv, size_t len, u8 *info,
+		     int packet_type, char *nid);
+int eapol_tlv_nid_tx(void *priv, struct wpabuf *buf, char *nid);
+int eapol_tlv_nid_rx(void *priv, size_t len, u8 *info, int packet_type,
+		     char *nid);
+int eapol_tlv_nid_length(void *priv, char *nid);
+Boolean eapol_tlv_nid_present(void *priv, char *nid);
 
 #else /* IEEE8021X_EAPOL */
 static inline struct eapol_sm *eapol_sm_init(struct eapol_ctx *ctx)
@@ -502,6 +518,88 @@ eapol_sm_get_erp_info(struct eapol_sm *sm, struct eap_peer_config *config,
 {
 	return -1;
 }
+static Boolean eapol_tlv_default_present(void *priv, char *nid)
+{
+        return FALSE;
+}
+static int eapol_tlv_access_info_tx(void *priv, struct wpabuf *buf, char *nid)
+{
+        return 0;
+}
+static int eapol_tlv_access_info_rx(void *priv, size_t len, u8 *info,
+				    int packet_type, char *nid)
+{
+        return 0;
+}
+static int eapol_tlv_access_info_length(void *priv, char *nid)
+{
+        return 0;
+}
+static Boolean eapol_tlv_access_info_present(void *priv, char *nid)
+{
+        return FALSE;
+}
+static int eapol_tlv_macsec_cs_rx(void *priv, size_t len, u8 *info,
+				  int packet_type, char *nid)
+{
+        return 0;
+}
+static int eapol_tlv_kmd_rx(void *priv, size_t len, u8 *info, int packet_type,
+			    char *nid)
+{
+        return 0;
+}
+static int eapol_tlv_nid_tx(void *priv, struct wpabuf *buf, char *nid)
+{
+        return 0;
+}
+static int eapol_tlv_nid_rx(void *priv, size_t len, u8 *info, int packet_type,
+			    char *nid)
+{
+        return 0;
+}
+static int eapol_tlv_nid_length(void *priv, char *nid)
+{
+        return 0;
+}
+static Boolean eapol_tlv_nid_present(void *priv, char *nid)
+{
+        return FALSE;
+}
 #endif /* IEEE8021X_EAPOL */
+
+static struct
+ieee802_1x_announcement_handler ieee802_1x_announcement_handlers[] = {
+	[IEEE802_1X_ANN_TLV_ACCESS_INFO] = {
+		.body_tx      = eapol_tlv_access_info_tx,
+		.body_rx      = eapol_tlv_access_info_rx,
+		.body_length  = eapol_tlv_access_info_length,
+		.body_present = eapol_tlv_access_info_present,
+	},
+	[IEEE802_1X_ANN_TLV_MACSEC_CS] = {
+		.body_tx      = NULL,
+		.body_rx      = eapol_tlv_macsec_cs_rx,
+		.body_length  = NULL,
+		.body_present = NULL,
+	},
+	[IEEE802_1X_ANN_TLV_KMD] = {
+		.body_tx      = NULL,
+		.body_rx      = eapol_tlv_kmd_rx,
+		.body_length  = NULL,
+		.body_present = NULL,
+	},
+	[IEEE802_1X_ANN_TLV_NID] = {
+		.body_tx      = eapol_tlv_nid_tx,
+		.body_rx      = eapol_tlv_nid_rx,
+		.body_length  = eapol_tlv_nid_length,
+		.body_present = eapol_tlv_nid_present,
+	},
+	[0 ... IEEE802_1X_ANN_TLV_MAX] = {
+		.body_tx      = NULL,
+		.body_rx      = NULL,
+		.body_length  = NULL,
+		.body_present = eapol_tlv_default_present,
+	},
+};
 
 #endif /* EAPOL_SUPP_SM_H */

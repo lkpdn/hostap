@@ -19,6 +19,7 @@
 #include "eap_peer/eap_config.h"
 #include "eap_peer/eap_proxy.h"
 #include "eapol_supp_sm.h"
+#include "pae/ieee802_1x_pae.h"
 
 #define STATE_MACHINE_DATA struct eapol_sm
 #define STATE_MACHINE_DEBUG_PREFIX "EAPOL"
@@ -1270,6 +1271,80 @@ int eapol_sm_get_mib(struct eapol_sm *sm, char *buf, size_t buflen)
 	return len;
 }
 #endif /* CONFIG_CTRL_IFACE */
+
+
+/*
+ * ieee802_1x_announcement_handler implementations
+ */
+Boolean eapol_tlv_default_present(void *priv, char *nid)
+{
+	/* IEEE 802.1X-2010 11.12.8 d) - let's ignore */
+	return FALSE;
+}
+
+
+int eapol_tlv_access_info_tx(void *priv, struct wpabuf *buf, char *nid)
+{
+	return 0;
+}
+
+
+int eapol_tlv_access_info_rx(void *priv, size_t len, u8 *info, int packet_type,
+			     char *nid)
+{
+	return 0;
+}
+
+
+int eapol_tlv_access_info_length(void *priv, char *nid)
+{
+	return 0;
+}
+
+
+Boolean eapol_tlv_access_info_present(void *priv, char *nid)
+{
+	return FALSE;
+}
+
+
+int eapol_tlv_macsec_cs_rx(void *priv, size_t len, u8 *info, int packet_type,
+			   char *nid)
+{
+	return 0;
+}
+
+
+int eapol_tlv_kmd_rx(void *priv, size_t len, u8 *info, int packet_type,
+		     char *nid)
+{
+	return 0;
+}
+
+
+int eapol_tlv_nid_tx(void *priv, struct wpabuf *buf, char *nid)
+{
+	return 0;
+}
+
+
+int eapol_tlv_nid_rx(void *priv, size_t len, u8 *info, int packet_type,
+		     char *nid)
+{
+	return 0;
+}
+
+
+int eapol_tlv_nid_length(void *priv, char *nid)
+{
+	return 0;
+}
+
+
+Boolean eapol_tlv_nid_present(void *priv, char *nid)
+{
+	return FALSE;
+}
 
 
 /**
