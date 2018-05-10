@@ -24,6 +24,7 @@
 #include "common/wpa_ctrl.h"
 #include "wpas_glue.h"
 #include "wps_supplicant.h"
+#include "pae/ieee802_1x_pae.h"
 #include "bss.h"
 #include "scan.h"
 #include "notify.h"
@@ -260,6 +261,22 @@ static int
 wpa_supplicant_encode_eapol_announcement(void *ctx, int type,
 					 struct wpabuf *pbuf)
 {
+	struct wpa_supplicant *wpa_s = ctx;
+	struct wpabuf *buf = NULL;
+	size_t length = 0;
+
+	length = ieee802_1x_pae_len_announcement_generic(
+		ieee802_1x_announcement_handlers, NULL, buf, wpa_s);
+
+	buf = wpabuf_alloc(length);
+	if (!buf) {
+		wpa_printf(MSG_ERROR, "SUPP: out of memory");
+		return -1;
+	}
+
+	ieee802_1x_pae_encode_announcement_generic(
+		ieee802_1x_announcement_handlers, NULL, buf, wpa_s);
+
 	return 0;
 }
 
